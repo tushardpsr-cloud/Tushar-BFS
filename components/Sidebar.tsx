@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
 
       <div className="p-4 border-t border-slate-200/60">
         <div className="flex items-center space-x-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0071e3] to-[#42a5f5] text-white flex items-center justify-center text-xs font-medium">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0071e3] to-[#42a5f5] text-white flex items-center justify-center text-xs font-medium shadow-sm">
                 JD
             </div>
             <div>

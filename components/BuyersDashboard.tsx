@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Lead, Interaction, Industry } from '../types';
-import { Search, Mail, Phone, Clock, Plus, Filter, User } from 'lucide-react';
+import { Lead, Interaction } from '../types';
+import { Search, Mail, Phone, Plus, User } from 'lucide-react';
 
 interface BuyersDashboardProps {
   leads: Lead[];

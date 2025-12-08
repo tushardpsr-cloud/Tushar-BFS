@@ -1,6 +1,5 @@
 import React from 'react';
 import { Broker } from '../types';
-import { Briefcase, TrendingUp } from 'lucide-react';
 
 interface BrokersDashboardProps {
   brokers: Broker[];

@@ -88,11 +88,13 @@ export interface Listing {
 }
 
 export interface MatchResult {
-  id: string;
-  listingId: string;
-  leadId: string;
+  entity: Lead | Listing;
   tier: MatchTier;
-  score: number; // 0-100
+}
+
+export interface AIMatchResult {
+  leadId: string;
+  listingId: string;
+  score: number;
   reasoning: string;
-  isSent: boolean; // Has this been pitched?
 }

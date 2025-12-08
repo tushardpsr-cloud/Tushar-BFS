@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
-import { Listing, Industry, DealStage } from '../types';
-import { generateListingDescription } from '../services/geminiService';
-import { Sparkles, MapPin, Tag, TrendingUp, DollarSign } from 'lucide-react';
+import React from 'react';
+import { Listing, DealStage } from '../types';
 
 interface ListingsDashboardProps {
   listings: Listing[];
   setListings: React.Dispatch<React.SetStateAction<Listing[]>>;
 }
 
-export const ListingsDashboard: React.FC<ListingsDashboardProps> = ({ listings, setListings }) => {
-  // Keeping simplified logic for brevity - focus on UI changes
-  
+export const ListingsDashboard: React.FC<ListingsDashboardProps> = ({ listings }) => {
   const formatCurrency = (num: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
   };

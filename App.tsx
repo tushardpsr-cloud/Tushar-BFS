@@ -115,10 +115,10 @@ export default function App() {
   
   // Initialize state with calculated scores
   const [listings, setListings] = useState<Listing[]>(() => 
-    INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l, INITIAL_INTERACTIONS) }))
+    INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) }))
   );
   const [leads, setLeads] = useState<Lead[]>(() => 
-    INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l, INITIAL_INTERACTIONS) }))
+    INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) }))
   );
   const [brokers] = useState<Broker[]>(INITIAL_BROKERS);
   const [interactions, setInteractions] = useState<Interaction[]>(INITIAL_INTERACTIONS);
@@ -136,7 +136,7 @@ export default function App() {
       setInteractions(prev => [newInteraction, ...prev]);
 
       // Update entity metrics (Simulating real-time recalc)
-      const updateEntity = (items: any[], isBuyer: boolean) => {
+      const updateEntity = (items: any[]) => {
           return items.map(item => {
               if (item.id === entityId) {
                   return {
@@ -151,8 +151,8 @@ export default function App() {
           });
       };
 
-      setLeads(prev => updateEntity(prev, true) as Lead[]);
-      setListings(prev => updateEntity(prev, false) as Listing[]);
+      setLeads(prev => updateEntity(prev) as Lead[]);
+      setListings(prev => updateEntity(prev) as Listing[]);
   };
 
   const renderContent = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Lead, Listing, Interaction } from '../types';
+import { Lead, Listing } from '../types';
 import { getDailyFocusList, getHotDeals, getAgingItems } from '../services/crmLogic';
-import { Phone, Mail, Clock, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Phone, Mail, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface MyDayProps {
   leads: Lead[];

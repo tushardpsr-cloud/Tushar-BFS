@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { Lead, Listing, MatchResult } from "../types";
+import { Lead, Listing, MatchResult, AIMatchResult } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -34,7 +34,7 @@ export const generateListingDescription = async (listing: Partial<Listing>): Pro
   }
 };
 
-export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<MatchResult[]> => {
+export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<AIMatchResult[]> => {
   try {
     const prompt = `
       You are an expert Deal Matchmaker. 
@@ -86,7 +86,7 @@ export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<Mat
     if (!jsonStr) return [];
     
     // The response text is a JSON string based on the schema
-    const results = JSON.parse(jsonStr) as Omit<MatchResult, 'listingId'>[];
+    const results = JSON.parse(jsonStr) as Omit<AIMatchResult, 'listingId'>[];
     
     // Hydrate with listingId
     return results.map(r => ({ ...r, listingId: listing.id }));

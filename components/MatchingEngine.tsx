@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lead, Listing, MatchResult } from '../types';
+import { Lead, Listing, AIMatchResult } from '../types';
 import { analyzeMatch } from '../services/geminiService';
 import { Sparkles, ArrowRight, Loader, AlertCircle } from 'lucide-react';
 
@@ -10,7 +10,7 @@ interface MatchingEngineProps {
 
 export const MatchingEngine: React.FC<MatchingEngineProps> = ({ leads, listings }) => {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [matches, setMatches] = useState<MatchResult[]>([]);
+  const [matches, setMatches] = useState<AIMatchResult[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasRun, setHasRun] = useState(false);
 

@@ -1,4 +1,4 @@
-import { Lead, Listing, Interaction, DealStage, MatchTier, MatchResult, Industry } from '../types';
+import { Lead, Listing, Interaction, DealStage, MatchTier, Industry } from '../types';
 
 // --- Constants ---
 const BUYER_WEEKLY_CAP = 3;
@@ -12,7 +12,7 @@ const daysSince = (dateStr?: string) => {
 };
 
 // --- Core Logic: Priority Scoring ---
-export const calculatePriorityScore = (entity: Lead | Listing, interactions: Interaction[]): number => {
+export const calculatePriorityScore = (entity: Lead | Listing): number => {
   let score = 50; // Base score
 
   // 1. Recency Decay
@@ -21,14 +21,15 @@ export const calculatePriorityScore = (entity: Lead | Listing, interactions: Int
   else if (days < 3) score -= 10; // Recently touched
 
   // 2. Value/Budget Impact
-  const value = 'askingPrice' in entity ? entity.askingPrice : entity.maxBudget;
+  const value = 'askingPrice' in entity ? (entity as Listing).askingPrice : (entity as Lead).maxBudget;
   if (value > 2000000) score += 15;
   if (value > 5000000) score += 10;
 
   // 3. Stage Impact (Listings only)
   if ('stage' in entity) {
-    if (entity.stage === DealStage.Offer || entity.stage === DealStage.Closing) score += 30;
-    if (entity.stage === DealStage.New) score += 10;
+    const l = entity as Listing;
+    if (l.stage === DealStage.Offer || l.stage === DealStage.Closing) score += 30;
+    if (l.stage === DealStage.New) score += 10;
   }
 
   return Math.min(100, Math.max(0, score));
@@ -36,9 +37,9 @@ export const calculatePriorityScore = (entity: Lead | Listing, interactions: Int
 
 // --- Core Logic: Match Tiering Formula ---
 export const calculateMatchTier = (listing: Listing, lead: Lead): MatchTier => {
-  const budgetFit = lead.maxBudget >= listing.askingPrice * 0.9; // Within 10%
+  const budgetFit = lead.maxBudget >= listing.askingPrice * 0.9; // Within 10% margin
   const industryFit = lead.preferredIndustries.includes(listing.industry);
-  const roi = listing.cashflow / listing.askingPrice;
+  const roi = listing.askingPrice > 0 ? listing.cashflow / listing.askingPrice : 0;
   
   // 1. Ideal: Budget Fits + Industry Fits
   if (budgetFit && industryFit) return MatchTier.Ideal;
@@ -83,5 +84,5 @@ export const getAgingItems = (leads: Lead[], listings: Listing[]) => {
   // Items with no contact in 30+ days
   const agingLeads = leads.filter(l => daysSince(l.lastContactDate) > 30);
   const agingListings = listings.filter(l => daysSince(l.lastContactDate) > 30);
-  return [...agingLeads, ...agingListings].slice(0, 5);
+  return [...agingLeads.map(l => ({...l, type: 'Buyer'})), ...agingListings.map(l => ({...l, type: 'Seller'}))].slice(0, 5);
 };
