@@ -8,7 +8,7 @@ interface ListingsDashboardProps {
 
 export const ListingsDashboard: React.FC<ListingsDashboardProps> = ({ listings }) => {
   const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+    return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
   };
 
   return (

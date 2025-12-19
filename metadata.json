@@ -1,5 +1,7 @@
 {
   "name": "Copy of BrokerBridge AI",
   "description": "A sophisticated CRM for business brokerage enabling management of leads, listings, and AI-driven matching of buyers to sellers.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

@@ -64,7 +64,7 @@ export const ListingsManager: React.FC<ListingsManagerProps> = ({ listings, setL
   };
 
   const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+    return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
   };
 
   return (
@@ -163,16 +163,16 @@ export const ListingsManager: React.FC<ListingsManagerProps> = ({ listings, setL
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Asking Price</label>
+                      <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Asking Price (AED)</label>
                       <input type="number" name="askingPrice" value={formData.askingPrice} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3]" />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">EBITDA</label>
+                      <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">EBITDA (AED)</label>
                       <input type="number" name="ebitda" value={formData.ebitda} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3]" />
                     </div>
                   </div>
                    <div>
-                    <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Annual Revenue</label>
+                    <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Annual Revenue (AED)</label>
                     <input type="number" name="revenue" value={formData.revenue} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3]" />
                    </div>
                    <div>

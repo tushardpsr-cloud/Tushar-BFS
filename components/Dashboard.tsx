@@ -22,15 +22,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
   const stats = [
     { label: 'Active Listings', value: listings.length, icon: Briefcase },
     { label: 'Qualified Leads', value: leads.length, icon: Users },
-    { label: 'Portfolio Value', value: `$${(totalListingsValue / 1000000).toFixed(1)}M`, icon: DollarSign },
-    { label: 'Buying Power', value: `$${(totalPotentialBudget / 1000000).toFixed(1)}M`, icon: TrendingUp },
+    { label: 'Portfolio Value', value: `AED ${(totalListingsValue / 1000000).toFixed(1)}M`, icon: DollarSign },
+    { label: 'Buying Power', value: `AED ${(totalPotentialBudget / 1000000).toFixed(1)}M`, icon: TrendingUp },
   ];
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
       <header>
         <h2 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">Dashboard</h2>
-        <p className="text-[#86868b] mt-1">Overview of your current deal flow.</p>
+        <p className="text-[#86868b] mt-1">Overview of your current deal flow in Dubai.</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -81,7 +81,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
                  <div className="w-2 h-2 rounded-full bg-[#0071e3] mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(0,113,227,0.4)]"></div>
                  <div>
                    <p className="text-sm text-[#1d1d1f] font-medium">New match suggested via AI</p>
-                   <p className="text-xs text-[#86868b] mt-0.5">System matched "Tech Lead" with "SaaS Listing #{100+i}"</p>
+                   <p className="text-xs text-[#86868b] mt-0.5">System matched "Investor #{10+i}" with "Listing #{100+i}"</p>
                    <p className="text-[10px] text-[#86868b] mt-1 font-medium">{i * 2 + 1} hours ago</p>
                  </div>
                </div>

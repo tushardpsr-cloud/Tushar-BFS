@@ -60,7 +60,7 @@ export const MatchingEngine: React.FC<MatchingEngineProps> = ({ leads, listings 
                             <h4 className={`font-semibold ${selectedListing?.id === l.id ? 'text-white' : 'text-[#1d1d1f]'}`}>{l.title}</h4>
                             <span className={`text-[10px] font-bold uppercase tracking-wider ${selectedListing?.id === l.id ? 'text-blue-100' : 'text-[#86868b]'}`}>{l.industry}</span>
                         </div>
-                        <p className={`text-sm mt-1 font-medium ${selectedListing?.id === l.id ? 'text-blue-100' : 'text-[#86868b]'}`}>${(l.askingPrice / 1000).toFixed(0)}k Ask</p>
+                        <p className={`text-sm mt-1 font-medium ${selectedListing?.id === l.id ? 'text-blue-100' : 'text-[#86868b]'}`}>AED {(l.askingPrice / 1000).toFixed(0)}k Ask</p>
                     </div>
                 ))}
             </div>
@@ -148,7 +148,7 @@ export const MatchingEngine: React.FC<MatchingEngineProps> = ({ leads, listings 
                             <div className="flex justify-between items-end mb-2">
                                 <div>
                                     <h4 className="font-semibold text-[#1d1d1f] text-lg">{lead.name}</h4>
-                                    <p className="text-xs text-[#86868b] font-medium">Budget: ${lead.maxBudget.toLocaleString()}</p>
+                                    <p className="text-xs text-[#86868b] font-medium">Budget: AED {lead.maxBudget.toLocaleString()}</p>
                                 </div>
                                 <div className="text-right">
                                     <span className={`text-2xl font-bold ${scoreColor} tracking-tight`}>{match.score}%</span>

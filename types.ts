@@ -32,6 +32,20 @@ export enum InteractionType {
   Note = 'Note'
 }
 
+export enum FeedbackStatus {
+  Positive = 'Positive',
+  Negative = 'Negative',
+  Pending = 'Pending'
+}
+
+export interface MatchFeedback {
+  id: string;
+  leadId: string;
+  listingId: string;
+  status: FeedbackStatus;
+  timestamp: string;
+}
+
 export interface Interaction {
   id: string;
   entityId: string; // ID of Lead or Listing/Seller
@@ -39,6 +53,15 @@ export interface Interaction {
   date: string;
   notes: string;
   sentiment?: 'Positive' | 'Neutral' | 'Negative';
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  dueDate: string;
+  completed: boolean;
+  relatedEntityId?: string;
+  priority: 'High' | 'Normal';
 }
 
 export interface Broker {
@@ -97,4 +120,14 @@ export interface AIMatchResult {
   listingId: string;
   score: number;
   reasoning: string;
+}
+
+// Voice Command Types
+export type VoiceIntent = 'CREATE_LEAD' | 'CREATE_LISTING' | 'LOG_INTERACTION' | 'CREATE_TASK' | 'UNKNOWN';
+
+export interface VoiceCommandResponse {
+  transcription: string;
+  intent: VoiceIntent;
+  data: any; // Dynamic based on intent
+  matchedEntityName?: string;
 }

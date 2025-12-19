@@ -1,21 +1,25 @@
 import React from 'react';
-import { Lead, Listing } from '../types';
+import { Lead, Listing, Task } from '../types';
 import { getDailyFocusList, getHotDeals, getAgingItems } from '../services/crmLogic';
-import { Phone, Mail, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Phone, Mail, CheckCircle2, AlertTriangle, CalendarCheck } from 'lucide-react';
 
 interface MyDayProps {
   leads: Lead[];
   listings: Listing[];
+  tasks?: Task[]; // Added tasks prop
   onLogInteraction: (entityId: string, type: 'Call' | 'Email') => void;
+  onCompleteTask?: (taskId: string) => void;
 }
 
-export const MyDay: React.FC<MyDayProps> = ({ leads, listings, onLogInteraction }) => {
+export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLogInteraction, onCompleteTask }) => {
   const focusList = getDailyFocusList(leads, listings);
   const hotDeals = getHotDeals(listings);
   const agingItems = getAgingItems(leads, listings);
 
   const formatCurrency = (num: number) => 
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+    new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
+
+  const activeTasks = tasks.filter(t => !t.completed);
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -25,14 +29,42 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, onLogInteraction 
           <p className="text-[#86868b] mt-1">Here is your prioritized focus list for today.</p>
         </div>
         <div className="text-right">
-             <p className="text-3xl font-light text-[#0071e3]">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
-             <p className="text-sm font-medium text-[#86868b]">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
+             <p className="text-3xl font-light text-[#0071e3]">{new Date().toLocaleDateString('en-GB', { weekday: 'long' })}</p>
+             <p className="text-sm font-medium text-[#86868b]">{new Date().toLocaleDateString('en-GB', { month: 'long', day: 'numeric' })}</p>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Focus List */}
         <div className="lg:col-span-2 space-y-6">
+            
+            {/* TASKS SECTION - Only show if there are tasks */}
+            {activeTasks.length > 0 && (
+                <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden mb-6">
+                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
+                        <h3 className="font-semibold text-[#1d1d1f] flex items-center">
+                            <CalendarCheck size={18} className="mr-2 text-[#0071e3]" />
+                            Reminders & Tasks
+                        </h3>
+                    </div>
+                    <div className="p-4 space-y-2">
+                        {activeTasks.map(task => (
+                            <div key={task.id} className="flex items-center p-3 bg-white rounded-xl border border-gray-100 hover:border-blue-200 transition-colors shadow-sm">
+                                <button 
+                                    onClick={() => onCompleteTask && onCompleteTask(task.id)}
+                                    className="w-5 h-5 rounded-full border-2 border-gray-300 hover:border-[#0071e3] hover:bg-blue-50 transition-all mr-3 flex-shrink-0"
+                                ></button>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-[#1d1d1f]">{task.title}</p>
+                                    <p className="text-xs text-[#86868b]">Due: {task.dueDate}</p>
+                                </div>
+                                <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded-md">{task.priority}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0">
                     <h3 className="font-semibold text-[#1d1d1f]">Focus List <span className="text-[#86868b] font-normal ml-1">({focusList.length})</span></h3>

@@ -67,7 +67,7 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
                             </span>
                         </div>
                         <div className={`text-xs mt-1 truncate ${selectedLeadId === lead.id ? 'text-blue-100' : 'text-[#86868b]'}`}>
-                             ${(lead.minBudget/1000000).toFixed(1)}M - ${(lead.maxBudget/1000000).toFixed(1)}M • {lead.preferredIndustries[0]}
+                             AED {(lead.minBudget/1000000).toFixed(1)}M - {(lead.maxBudget/1000000).toFixed(1)}M • {lead.preferredIndustries[0]}
                         </div>
                      </button>
                  ))}
@@ -104,7 +104,7 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
                                   <div className="bg-[#f5f5f7] p-4 rounded-2xl space-y-2">
                                       <div className="flex justify-between text-sm">
                                           <span className="text-[#86868b]">Budget</span>
-                                          <span className="font-medium text-[#1d1d1f]">${(selectedLead.minBudget/1000).toFixed(0)}k - ${(selectedLead.maxBudget/1000).toFixed(0)}k</span>
+                                          <span className="font-medium text-[#1d1d1f]">AED {(selectedLead.minBudget/1000).toFixed(0)}k - {(selectedLead.maxBudget/1000).toFixed(0)}k</span>
                                       </div>
                                       <div className="flex justify-between text-sm">
                                           <span className="text-[#86868b]">Industries</span>

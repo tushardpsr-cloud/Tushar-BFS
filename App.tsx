@@ -5,62 +5,45 @@ import { ListingsDashboard } from './components/ListingsDashboard';
 import { BuyersDashboard } from './components/BuyersDashboard';
 import { MatchingHub } from './components/MatchingHub';
 import { BrokersDashboard } from './components/BrokersDashboard';
-import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker } from './types';
+import { VoiceOverlay } from './components/VoiceOverlay';
+import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, Task, VoiceCommandResponse, MatchFeedback, FeedbackStatus } from './types';
 import { calculatePriorityScore } from './services/crmLogic';
 
 // --- MOCK DATA ---
 const INITIAL_LISTINGS: Listing[] = [
   {
     id: '1',
-    title: 'High Margin SaaS Platform',
-    industry: Industry.Technology,
-    location: 'Remote / Austin, TX',
-    askingPrice: 1200000,
-    revenue: 450000,
-    ebitda: 320000,
-    cashflow: 300000,
-    description: 'B2B SaaS with automated workflows.',
-    stage: DealStage.Contacted,
-    sellerName: 'John Doe',
-    sellerContact: 'john@example.com',
-    dateAdded: '2023-09-15',
-    lastContactDate: '2023-10-25',
-    touchCountWeek: 1,
+    title: 'Upside Down Burger',
+    industry: Industry.Hospitality,
+    location: 'Dubai, UAE',
+    askingPrice: 550000,
+    revenue: 1200000,
+    ebitda: 300000,
+    cashflow: 250000,
+    description: 'Popular burger joint. Rent: 255k. Revenue: 1.2M. Strong local following.',
+    stage: DealStage.Offer,
+    sellerName: 'Amina',
+    sellerContact: 'amina@upsidedown.ae',
+    dateAdded: '2023-11-01',
+    lastContactDate: '2023-11-20',
+    touchCountWeek: 2,
     priorityScore: 0 // Will calc
   },
   {
     id: '2',
-    title: 'Precision Manufacturing Plant',
-    industry: Industry.Manufacturing,
-    location: 'Cleveland, OH',
-    askingPrice: 3500000,
-    revenue: 2100000,
-    ebitda: 600000,
-    cashflow: 550000,
-    description: 'Specialized parts for aerospace.',
-    stage: DealStage.New,
-    sellerName: 'Industrial Holdings LLC',
-    sellerContact: 'info@industrial.com',
-    dateAdded: '2023-10-01',
-    touchCountWeek: 0,
-    priorityScore: 0
-  },
-  {
-    id: '3',
-    title: 'Luxury Day Spa Chain',
-    industry: Industry.Service,
-    location: 'Miami, FL',
-    askingPrice: 850000,
-    revenue: 1200000,
-    ebitda: 250000,
-    cashflow: 240000,
-    description: '3 locations in high traffic areas.',
-    stage: DealStage.NDA_Signed,
-    sellerName: 'Sarah Smith',
-    sellerContact: 's.smith@gmail.com',
-    dateAdded: '2023-08-20',
-    lastContactDate: '2023-10-10', // Aging
-    touchCountWeek: 0,
+    title: 'Big Smile Coffee',
+    industry: Industry.Retail,
+    location: 'Dubai Design District',
+    askingPrice: 660000,
+    revenue: 400000,
+    ebitda: 150000,
+    cashflow: 140000,
+    description: 'Automated coffee vending machine business. Rent: 53,000.',
+    stage: DealStage.Contacted,
+    sellerName: 'Unknown',
+    sellerContact: 'owner@bigsmile.ae',
+    dateAdded: '2023-11-10',
+    touchCountWeek: 1,
     priorityScore: 0
   }
 ];
@@ -68,46 +51,51 @@ const INITIAL_LISTINGS: Listing[] = [
 const INITIAL_LEADS: Lead[] = [
   {
     id: '101',
-    name: 'Tech Ventures Capital',
-    email: 'acquisitions@techventures.com',
-    phone: '555-0101',
+    name: 'Abdulla',
+    email: 'abdulla@invest.ae',
+    phone: '+971 50 123 4567',
     minBudget: 500000,
-    maxBudget: 2000000,
-    preferredIndustries: [Industry.Technology],
-    locationPreference: 'Remote',
-    notes: 'Looking for SaaS with >500k ARR.',
-    dateAdded: '2023-10-01',
+    maxBudget: 1000000,
+    preferredIndustries: [Industry.Retail, Industry.Hospitality],
+    locationPreference: 'Dubai',
+    notes: 'Investor in coffee business. Interested in Big Smile Coffee.',
+    dateAdded: '2023-10-20',
     status: 'Active',
     touchCountWeek: 1,
     priorityScore: 0,
-    lastContactDate: '2023-10-26'
+    lastContactDate: '2023-11-22'
   },
   {
     id: '102',
-    name: 'Robert Miller',
-    email: 'rmiller@invest.com',
-    phone: '555-0102',
-    minBudget: 1000000,
-    maxBudget: 5000000,
-    preferredIndustries: [Industry.Manufacturing, Industry.Construction],
-    locationPreference: 'Midwest',
-    notes: 'Hands-on operator looking for legacy business.',
-    dateAdded: '2023-10-05',
+    name: 'Reka',
+    email: 'reka@invest.ae',
+    phone: '+971 55 987 6543',
+    minBudget: 400000,
+    maxBudget: 800000,
+    preferredIndustries: [Industry.Hospitality],
+    locationPreference: 'Dubai',
+    notes: 'Investor in small restaurant business. Placed offer on Upside Down Burger (550k). Waiting on audit verification.',
+    dateAdded: '2023-10-25',
     status: 'Active',
-    touchCountWeek: 0,
+    touchCountWeek: 2,
     priorityScore: 0,
-    lastContactDate: '2023-09-15' // Very old
+    lastContactDate: '2023-11-24'
   }
 ];
 
+const INITIAL_FEEDBACK: MatchFeedback[] = [
+    { id: 'f1', leadId: '101', listingId: '2', status: FeedbackStatus.Pending, timestamp: '2023-11-23' },
+    { id: 'f2', leadId: '102', listingId: '1', status: FeedbackStatus.Positive, timestamp: '2023-11-24' }
+];
+
 const INITIAL_BROKERS: Broker[] = [
-    { id: 'b1', name: 'Alice Walker', firm: 'Prestige Realty', email: 'alice@prestige.com', dealsClosed: 12, referralFee: 15 },
-    { id: 'b2', name: 'James Chen', firm: 'Capital Partners', email: 'j.chen@capital.com', dealsClosed: 8, referralFee: 10 },
+    { id: 'b1', name: 'Zayed Al Nahyan', firm: 'Emirates Capital', email: 'zayed@ec.ae', dealsClosed: 15, referralFee: 15 },
+    { id: 'b2', name: 'Sarah Jones', firm: 'Dubai Real Estate', email: 's.jones@dre.ae', dealsClosed: 8, referralFee: 10 },
 ];
 
 const INITIAL_INTERACTIONS: Interaction[] = [
-    { id: 'i1', entityId: '101', type: InteractionType.Call, date: '2023-10-26T10:00:00', notes: 'Discussed SaaS opportunity #1' },
-    { id: 'i2', entityId: '1', type: InteractionType.Email, date: '2023-10-25T14:30:00', notes: 'Sent NDA for signature' },
+    { id: 'i1', entityId: '1', type: InteractionType.Note, date: '2023-11-24T10:00:00', notes: 'Reka placed an offer for 550k, waiting on audit verification.' },
+    { id: 'i2', entityId: '101', type: InteractionType.Email, date: '2023-11-23T14:30:00', notes: 'Sent Big Smile Coffee teaser to Abdulla.' },
 ];
 
 export default function App() {
@@ -122,20 +110,22 @@ export default function App() {
   );
   const [brokers] = useState<Broker[]>(INITIAL_BROKERS);
   const [interactions, setInteractions] = useState<Interaction[]>(INITIAL_INTERACTIONS);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [feedbacks, setFeedbacks] = useState<MatchFeedback[]>(INITIAL_FEEDBACK);
 
   // Interaction Logger
-  const handleLogInteraction = (entityId: string, type: 'Call' | 'Email') => {
+  const handleLogInteraction = (entityId: string, type: 'Call' | 'Email', notes?: string) => {
       const newInteraction: Interaction = {
           id: Math.random().toString(36).substr(2, 9),
           entityId,
           type: type === 'Call' ? InteractionType.Call : InteractionType.Email,
           date: new Date().toISOString(),
-          notes: 'Auto-logged interaction from Quick Action'
+          notes: notes || 'Auto-logged interaction'
       };
 
       setInteractions(prev => [newInteraction, ...prev]);
 
-      // Update entity metrics (Simulating real-time recalc)
+      // Update entity metrics
       const updateEntity = (items: any[]) => {
           return items.map(item => {
               if (item.id === entityId) {
@@ -143,7 +133,6 @@ export default function App() {
                       ...item,
                       lastContactDate: new Date().toISOString(),
                       touchCountWeek: item.touchCountWeek + 1,
-                      // Re-calc priority (score drops because it was just touched)
                       priorityScore: Math.max(0, item.priorityScore - 10) 
                   };
               }
@@ -155,20 +144,91 @@ export default function App() {
       setListings(prev => updateEntity(prev) as Listing[]);
   };
 
+  const handleVoiceAction = (res: VoiceCommandResponse) => {
+    console.log("Processing Voice Action:", res);
+    
+    switch (res.intent) {
+        case 'CREATE_LEAD':
+            const newLead: Lead = {
+                id: Math.random().toString(36).substr(2, 9),
+                name: res.data.name || 'New Lead',
+                email: 'pending@entry.com',
+                phone: '',
+                minBudget: 0,
+                maxBudget: res.data.maxBudget || 0,
+                preferredIndustries: res.data.preferredIndustries || [],
+                locationPreference: 'Dubai',
+                notes: res.data.notes || res.transcription,
+                dateAdded: new Date().toISOString(),
+                status: 'Active',
+                touchCountWeek: 0,
+                priorityScore: 50
+            };
+            setLeads(prev => [newLead, ...prev]);
+            break;
+
+        case 'CREATE_LISTING':
+             const newListing: Listing = {
+                id: Math.random().toString(36).substr(2, 9),
+                title: res.data.title || 'New Listing',
+                description: 'Added via Voice',
+                askingPrice: res.data.askingPrice || 0,
+                revenue: res.data.revenue || 0,
+                ebitda: res.data.ebitda || 0,
+                cashflow: 0,
+                industry: res.data.industry || Industry.Technology,
+                location: res.data.location || 'Dubai',
+                stage: DealStage.New,
+                sellerName: 'Pending',
+                sellerContact: '',
+                dateAdded: new Date().toISOString(),
+                touchCountWeek: 0,
+                priorityScore: 50
+            };
+            setListings(prev => [newListing, ...prev]);
+            break;
+
+        case 'LOG_INTERACTION':
+            // Find entity by matched name
+            const targetName = res.matchedEntityName;
+            if (targetName) {
+                const lead = leads.find(l => l.name.toLowerCase() === targetName.toLowerCase());
+                const listing = listings.find(l => l.title.toLowerCase() === targetName.toLowerCase());
+                const entityId = lead?.id || listing?.id;
+                
+                if (entityId) {
+                    handleLogInteraction(entityId, 'Call', res.data.notes || res.transcription);
+                }
+            }
+            break;
+
+        case 'CREATE_TASK':
+            const newTask: Task = {
+                id: Math.random().toString(36).substr(2, 9),
+                title: res.data.title || res.transcription,
+                dueDate: res.data.dueDate || 'Today',
+                completed: false,
+                priority: 'Normal'
+            };
+            setTasks(prev => [newTask, ...prev]);
+            break;
+    }
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'my-day':
-        return <MyDay leads={leads} listings={listings} onLogInteraction={handleLogInteraction} />;
+        return <MyDay leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} onCompleteTask={(id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: true } : t))} />;
       case 'buyers':
         return <BuyersDashboard leads={leads} interactions={interactions} setLeads={setLeads} />;
       case 'listings':
         return <ListingsDashboard listings={listings} setListings={setListings} />;
       case 'matches':
-        return <MatchingHub leads={leads} listings={listings} />;
+        return <MatchingHub leads={leads} listings={listings} feedbacks={feedbacks} setFeedbacks={setFeedbacks} />;
       case 'brokers':
         return <BrokersDashboard brokers={brokers} />;
       default:
-        return <MyDay leads={leads} listings={listings} onLogInteraction={handleLogInteraction} />;
+        return <MyDay leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} />;
     }
   };
 
@@ -181,6 +241,14 @@ export default function App() {
            {renderContent()}
         </div>
       </main>
+
+      <VoiceOverlay 
+        context={{ 
+            leadNames: leads.map(l => l.name), 
+            listingTitles: listings.map(l => l.title) 
+        }} 
+        onAction={handleVoiceAction} 
+      />
     </div>
   );
 }

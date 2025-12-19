@@ -26,7 +26,7 @@ export const LeadsManager: React.FC<LeadsManagerProps> = ({ leads, setLeads }) =
   );
 
   const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+    return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -172,11 +172,11 @@ export const LeadsManager: React.FC<LeadsManagerProps> = ({ leads, setLeads }) =
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Min Budget</label>
+                        <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Min Budget (AED)</label>
                         <input type="number" name="minBudget" value={formData.minBudget} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3]" />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Max Budget</label>
+                        <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Max Budget (AED)</label>
                         <input type="number" name="maxBudget" value={formData.maxBudget} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3]" />
                     </div>
                 </div>
