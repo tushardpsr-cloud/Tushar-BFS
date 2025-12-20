@@ -6,20 +6,24 @@ import { BuyersDashboard } from './components/BuyersDashboard';
 import { MatchingHub } from './components/MatchingHub';
 import { BrokersDashboard } from './components/BrokersDashboard';
 import { VoiceOverlay } from './components/VoiceOverlay';
-import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, Task, VoiceCommandResponse, MatchFeedback, FeedbackStatus } from './types';
+import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, Task, VoiceCommandResponse, MatchFeedback, FeedbackStatus, ListingType } from './types';
 import { calculatePriorityScore } from './services/crmLogic';
+import { generateDemoLeads, generateDemoListings, generateDemoFeedback } from './services/demoData';
 
-// --- MOCK DATA ---
+// --- MOCK DATA (Baseline) ---
 const INITIAL_LISTINGS: Listing[] = [
   {
     id: '1',
     title: 'Upside Down Burger',
+    type: ListingType.Sale,
     industry: Industry.Hospitality,
     location: 'Dubai, UAE',
     askingPrice: 550000,
+    annualRent: 255000,
     revenue: 1200000,
     ebitda: 300000,
     cashflow: 250000,
+    sqft: 1200,
     description: 'Popular burger joint. Rent: 255k. Revenue: 1.2M. Strong local following.',
     stage: DealStage.Offer,
     sellerName: 'Amina',
@@ -27,17 +31,20 @@ const INITIAL_LISTINGS: Listing[] = [
     dateAdded: '2023-11-01',
     lastContactDate: '2023-11-20',
     touchCountWeek: 2,
-    priorityScore: 0 // Will calc
+    priorityScore: 0
   },
   {
     id: '2',
     title: 'Big Smile Coffee',
+    type: ListingType.Vending,
     industry: Industry.Retail,
     location: 'Dubai Design District',
     askingPrice: 660000,
+    annualRent: 53000,
     revenue: 400000,
     ebitda: 150000,
     cashflow: 140000,
+    sqft: 50,
     description: 'Automated coffee vending machine business. Rent: 53,000.',
     stage: DealStage.Contacted,
     sellerName: 'Unknown',
@@ -52,6 +59,8 @@ const INITIAL_LEADS: Lead[] = [
   {
     id: '101',
     name: 'Abdulla',
+    role: 'Investor',
+    nationality: 'UAE',
     email: 'abdulla@invest.ae',
     phone: '+971 50 123 4567',
     minBudget: 500000,
@@ -68,6 +77,8 @@ const INITIAL_LEADS: Lead[] = [
   {
     id: '102',
     name: 'Reka',
+    role: 'Entrepreneur',
+    nationality: 'Hungary',
     email: 'reka@invest.ae',
     phone: '+971 55 987 6543',
     minBudget: 400000,
@@ -100,8 +111,9 @@ const INITIAL_INTERACTIONS: Interaction[] = [
 
 export default function App() {
   const [currentView, setCurrentView] = useState('my-day');
+  const [isDemoMode, setIsDemoMode] = useState(false);
   
-  // Initialize state with calculated scores
+  // State
   const [listings, setListings] = useState<Listing[]>(() => 
     INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) }))
   );
@@ -112,6 +124,27 @@ export default function App() {
   const [interactions, setInteractions] = useState<Interaction[]>(INITIAL_INTERACTIONS);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [feedbacks, setFeedbacks] = useState<MatchFeedback[]>(INITIAL_FEEDBACK);
+
+  // Toggle Demo Mode
+  const toggleDemoMode = () => {
+    if (!isDemoMode) {
+      // START DEMO
+      const demoListings = generateDemoListings();
+      const demoLeads = generateDemoLeads();
+      const demoFeedback = generateDemoFeedback(demoLeads, demoListings);
+      
+      setListings(demoListings.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
+      setLeads(demoLeads.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
+      setFeedbacks(demoFeedback);
+      setIsDemoMode(true);
+    } else {
+      // STOP DEMO (Reset to initial)
+      setListings(INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
+      setLeads(INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
+      setFeedbacks(INITIAL_FEEDBACK);
+      setIsDemoMode(false);
+    }
+  };
 
   // Interaction Logger
   const handleLogInteraction = (entityId: string, type: 'Call' | 'Email', notes?: string) => {
@@ -145,8 +178,6 @@ export default function App() {
   };
 
   const handleVoiceAction = (res: VoiceCommandResponse) => {
-    console.log("Processing Voice Action:", res);
-    
     switch (res.intent) {
         case 'CREATE_LEAD':
             const newLead: Lead = {
@@ -189,7 +220,6 @@ export default function App() {
             break;
 
         case 'LOG_INTERACTION':
-            // Find entity by matched name
             const targetName = res.matchedEntityName;
             if (targetName) {
                 const lead = leads.find(l => l.name.toLowerCase() === targetName.toLowerCase());
@@ -234,7 +264,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
-      <Sidebar currentView={currentView} setView={setCurrentView} />
+      <Sidebar currentView={currentView} setView={setCurrentView} isDemoMode={isDemoMode} toggleDemoMode={toggleDemoMode} />
       
       <main className="flex-1 ml-64 p-8 lg:p-12 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto h-full flex flex-col">

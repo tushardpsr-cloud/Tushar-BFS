@@ -5,7 +5,14 @@ export enum Industry {
   Retail = 'Retail',
   Healthcare = 'Healthcare',
   Construction = 'Construction',
-  Hospitality = 'Hospitality'
+  Hospitality = 'Hospitality',
+  FnB = 'F&B' // Added specifically for the demo
+}
+
+export enum ListingType {
+  Sale = 'Sale', // Business Sale / Key Money
+  Rent = 'Rent', // Shell & Core or Fitted Rent
+  Vending = 'Vending' // Automated
 }
 
 export enum DealStage {
@@ -29,13 +36,15 @@ export enum InteractionType {
   Call = 'Call',
   Email = 'Email',
   Meeting = 'Meeting',
-  Note = 'Note'
+  Note = 'Note',
+  WhatsApp = 'WhatsApp'
 }
 
 export enum FeedbackStatus {
   Positive = 'Positive',
   Negative = 'Negative',
-  Pending = 'Pending'
+  Pending = 'Pending',
+  Ignored = 'Ignored' // Virtual status for UI logic
 }
 
 export interface MatchFeedback {
@@ -43,12 +52,12 @@ export interface MatchFeedback {
   leadId: string;
   listingId: string;
   status: FeedbackStatus;
-  timestamp: string;
+  timestamp: string; // ISO String
 }
 
 export interface Interaction {
   id: string;
-  entityId: string; // ID of Lead or Listing/Seller
+  entityId: string;
   type: InteractionType;
   date: string;
   notes: string;
@@ -70,12 +79,14 @@ export interface Broker {
   firm: string;
   email: string;
   dealsClosed: number;
-  referralFee: number; // percentage
+  referralFee: number;
 }
 
 export interface Lead {
   id: string;
   name: string;
+  role?: string; // e.g., "Entrepreneur", "Series A Investor"
+  nationality?: string;
   email: string;
   phone: string;
   minBudget: number;
@@ -85,28 +96,33 @@ export interface Lead {
   notes: string;
   dateAdded: string;
   lastContactDate?: string;
-  status: 'Active' | 'Cold' | 'Dead';
-  touchCountWeek: number; // For cap enforcement (3x/week)
-  priorityScore: number; // Computed 0-100
+  status: 'Active' | 'Cold' | 'Dead' | 'Paused';
+  touchCountWeek: number;
+  priorityScore: number;
 }
 
 export interface Listing {
   id: string;
   title: string;
+  type?: ListingType; // New field
   description: string;
-  askingPrice: number;
+  askingPrice: number; // Key Money or Sale Price
+  annualRent?: number; // New field for F&B Rent
   revenue: number;
-  ebitda: number; // Also SDE (Seller Discretionary Earnings) often used interchangeably in small biz
-  cashflow: number; // For ROI calc
+  ebitda: number;
+  cashflow: number;
   industry: Industry;
   location: string;
+  sqft?: number; // New field
+  staffCount?: number; // New field
+  amenities?: string[]; // e.g. "Gas Connection", "Terrace"
   stage: DealStage;
   sellerName: string;
   sellerContact: string;
   dateAdded: string;
   lastContactDate?: string;
-  touchCountWeek: number; // For cap enforcement (2x/week)
-  priorityScore: number; // Computed 0-100
+  touchCountWeek: number;
+  priorityScore: number;
   aiSummary?: string;
 }
 
@@ -122,12 +138,11 @@ export interface AIMatchResult {
   reasoning: string;
 }
 
-// Voice Command Types
 export type VoiceIntent = 'CREATE_LEAD' | 'CREATE_LISTING' | 'LOG_INTERACTION' | 'CREATE_TASK' | 'UNKNOWN';
 
 export interface VoiceCommandResponse {
   transcription: string;
   intent: VoiceIntent;
-  data: any; // Dynamic based on intent
+  data: any;
   matchedEntityName?: string;
 }
