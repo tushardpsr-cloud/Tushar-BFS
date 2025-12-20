@@ -34,7 +34,7 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
 
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* List View */}
-          <div className="lg:col-span-4 bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 flex flex-col overflow-hidden">
+          <div className="lg:col-span-4 bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 flex flex-col overflow-hidden transition-colors">
              <div className="p-4 border-b border-gray-100">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" size={16} />
@@ -75,7 +75,7 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
           </div>
 
           {/* Detail View */}
-          <div className="lg:col-span-8 bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 flex flex-col overflow-hidden">
+          <div className="lg:col-span-8 bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 flex flex-col overflow-hidden transition-colors">
               {selectedLead ? (
                   <div className="h-full flex flex-col">
                       {/* Header */}
@@ -92,8 +92,8 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
                                   <p className="text-[10px] uppercase font-bold text-[#86868b] tracking-wider">Wk Touch</p>
                                   <p className="text-xl font-bold text-[#1d1d1f]">{selectedLead.touchCountWeek}/3</p>
                               </div>
-                              <button className="bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 text-[#1d1d1f] shadow-sm"><Mail size={18}/></button>
-                              <button className="bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 text-[#1d1d1f] shadow-sm"><Phone size={18}/></button>
+                              <button className="bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 text-[#1d1d1f] shadow-sm transition-colors"><Mail size={18}/></button>
+                              <button className="bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 text-[#1d1d1f] shadow-sm transition-colors"><Phone size={18}/></button>
                           </div>
                       </div>
 

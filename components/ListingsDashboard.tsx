@@ -20,7 +20,7 @@ export const ListingsDashboard: React.FC<ListingsDashboardProps> = ({ listings }
         </div>
       </div>
 
-      <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden">
+      <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden transition-colors">
           <div className="overflow-x-auto">
               <table className="w-full text-left">
                   <thead className="bg-[#fbfbfd] border-b border-gray-100">

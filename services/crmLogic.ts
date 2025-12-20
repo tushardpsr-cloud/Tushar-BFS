@@ -68,7 +68,7 @@ export const getDailyFocusList = (leads: Lead[], listings: Listing[]) => {
   const focusList = allContacts
     .filter(c => c.touchCountWeek < c.cap) // Enforce Protocol
     .sort((a, b) => b.priorityScore - a.priorityScore) // Highest priority first
-    .slice(0, 10); // Daily limit
+    .slice(0, 15); // Daily limit
 
   return focusList;
 };

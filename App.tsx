@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
-import { MyDay } from './components/MyDay';
+import { Overview } from './components/Overview';
 import { ListingsDashboard } from './components/ListingsDashboard';
 import { BuyersDashboard } from './components/BuyersDashboard';
 import { MatchingHub } from './components/MatchingHub';
 import { BrokersDashboard } from './components/BrokersDashboard';
+import { OnboardingDashboard } from './components/OnboardingDashboard';
 import { VoiceOverlay } from './components/VoiceOverlay';
 import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, Task, VoiceCommandResponse, MatchFeedback, FeedbackStatus, ListingType } from './types';
 import { calculatePriorityScore } from './services/crmLogic';
-import { generateDemoLeads, generateDemoListings, generateDemoFeedback } from './services/demoData';
+import { generateDemoLeads, generateDemoListings, generateDemoFeedback, generateDemoTasks } from './services/demoData';
 
 // --- MOCK DATA (Baseline) ---
 const INITIAL_LISTINGS: Listing[] = [
@@ -70,6 +71,7 @@ const INITIAL_LEADS: Lead[] = [
     notes: 'Investor in coffee business. Interested in Big Smile Coffee.',
     dateAdded: '2023-10-20',
     status: 'Active',
+    onboardingStatus: 'Completed',
     touchCountWeek: 1,
     priorityScore: 0,
     lastContactDate: '2023-11-22'
@@ -88,9 +90,47 @@ const INITIAL_LEADS: Lead[] = [
     notes: 'Investor in small restaurant business. Placed offer on Upside Down Burger (550k). Waiting on audit verification.',
     dateAdded: '2023-10-25',
     status: 'Active',
+    onboardingStatus: 'Completed',
     touchCountWeek: 2,
     priorityScore: 0,
     lastContactDate: '2023-11-24'
+  },
+  // New Onboarding Leads
+  {
+    id: '103',
+    name: 'James Smith',
+    role: 'Seller',
+    nationality: 'UK',
+    email: 'james.smith@outlook.com',
+    phone: '+971 52 111 2222',
+    minBudget: 0,
+    maxBudget: 0,
+    preferredIndustries: [],
+    locationPreference: '',
+    notes: 'Wants to sell his Gym. Needs to fill out NDA and Biz Details form.',
+    dateAdded: '2023-11-28',
+    status: 'Active',
+    onboardingStatus: 'Pending',
+    touchCountWeek: 0,
+    priorityScore: 0
+  },
+  {
+    id: '104',
+    name: 'Li Wei',
+    role: 'First-time Buyer',
+    nationality: 'China',
+    email: 'li.wei@tech.cn',
+    phone: '+971 58 333 4444',
+    minBudget: 1000000,
+    maxBudget: 5000000,
+    preferredIndustries: [Industry.Technology],
+    locationPreference: 'Internet City',
+    notes: 'Met at networking event. Sent intake form.',
+    dateAdded: '2023-11-25',
+    status: 'Active',
+    onboardingStatus: 'Pending',
+    touchCountWeek: 1,
+    priorityScore: 0
   }
 ];
 
@@ -110,7 +150,7 @@ const INITIAL_INTERACTIONS: Interaction[] = [
 ];
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('my-day');
+  const [currentView, setCurrentView] = useState('overview');
   const [isDemoMode, setIsDemoMode] = useState(false);
   
   // State
@@ -132,26 +172,29 @@ export default function App() {
       const demoListings = generateDemoListings();
       const demoLeads = generateDemoLeads();
       const demoFeedback = generateDemoFeedback(demoLeads, demoListings);
+      const demoTasks = generateDemoTasks();
       
       setListings(demoListings.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setLeads(demoLeads.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setFeedbacks(demoFeedback);
+      setTasks(demoTasks);
       setIsDemoMode(true);
     } else {
       // STOP DEMO (Reset to initial)
       setListings(INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setLeads(INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setFeedbacks(INITIAL_FEEDBACK);
+      setTasks([]);
       setIsDemoMode(false);
     }
   };
 
   // Interaction Logger
-  const handleLogInteraction = (entityId: string, type: 'Call' | 'Email', notes?: string) => {
+  const handleLogInteraction = (entityId: string, type: 'Call' | 'Email' | 'Note', notes?: string) => {
       const newInteraction: Interaction = {
           id: Math.random().toString(36).substr(2, 9),
           entityId,
-          type: type === 'Call' ? InteractionType.Call : InteractionType.Email,
+          type: type === 'Call' ? InteractionType.Call : type === 'Email' ? InteractionType.Email : InteractionType.Note,
           date: new Date().toISOString(),
           notes: notes || 'Auto-logged interaction'
       };
@@ -192,6 +235,7 @@ export default function App() {
                 notes: res.data.notes || res.transcription,
                 dateAdded: new Date().toISOString(),
                 status: 'Active',
+                onboardingStatus: 'Completed',
                 touchCountWeek: 0,
                 priorityScore: 50
             };
@@ -245,10 +289,31 @@ export default function App() {
     }
   };
 
+  const handleAddTask = (taskData: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => {
+    const newTask: Task = {
+        id: Math.random().toString(36).substr(2, 9),
+        title: taskData.title,
+        dueDate: taskData.dueDate, 
+        completed: false,
+        priority: taskData.priority
+    };
+    setTasks(prev => [newTask, ...prev]);
+  };
+
   const renderContent = () => {
     switch (currentView) {
-      case 'my-day':
-        return <MyDay leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} onCompleteTask={(id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: true } : t))} />;
+      case 'overview':
+        return <Overview 
+            leads={leads} 
+            listings={listings} 
+            tasks={tasks} 
+            onLogInteraction={handleLogInteraction} 
+            onCompleteTask={(id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))} 
+            onNavigate={setCurrentView}
+            onAddTask={handleAddTask}
+        />;
+      case 'onboarding':
+        return <OnboardingDashboard leads={leads} setLeads={setLeads} />;
       case 'buyers':
         return <BuyersDashboard leads={leads} interactions={interactions} setLeads={setLeads} />;
       case 'listings':
@@ -258,13 +323,18 @@ export default function App() {
       case 'brokers':
         return <BrokersDashboard brokers={brokers} />;
       default:
-        return <MyDay leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} />;
+        return <Overview leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} onNavigate={setCurrentView} onAddTask={handleAddTask} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
-      <Sidebar currentView={currentView} setView={setCurrentView} isDemoMode={isDemoMode} toggleDemoMode={toggleDemoMode} />
+    <div className="flex min-h-screen bg-[#f5f5f7] text-[#1d1d1f] transition-colors duration-500">
+      <Sidebar 
+        currentView={currentView} 
+        setView={setCurrentView} 
+        isDemoMode={isDemoMode} 
+        toggleDemoMode={toggleDemoMode} 
+      />
       
       <main className="flex-1 ml-64 p-8 lg:p-12 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto h-full flex flex-col">

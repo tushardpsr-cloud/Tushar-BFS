@@ -360,7 +360,7 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
 
       <div className="flex-1 min-h-0 flex gap-6">
         {/* Left Sidebar: Entity Selector */}
-        <div className="w-80 flex flex-col bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-200 overflow-hidden shrink-0">
+        <div className="w-80 flex flex-col bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-200 overflow-hidden shrink-0 transition-colors">
            <div className="p-4 border-b border-gray-100">
              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" size={14} />

@@ -37,7 +37,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
         {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
-            <div key={idx} className="bg-white p-6 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-white/50 flex flex-col justify-between h-32 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300">
+            <div key={idx} className="bg-white p-6 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-white/50 flex flex-col justify-between h-32 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300">
               <div className="flex justify-between items-start">
                 <span className="text-[13px] font-medium text-[#86868b] uppercase tracking-wide">{stat.label}</span>
                 <Icon size={20} className="text-[#0071e3] opacity-80" />
@@ -49,7 +49,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 h-96">
+        <div className="bg-white p-8 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 h-96 transition-colors">
           <h2 className="text-lg font-semibold text-[#1d1d1f] mb-6">Listings by Industry</h2>
           <ResponsiveContainer width="100%" height="85%">
             <BarChart data={industryData}>
@@ -61,8 +61,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
                 dy={10}
               />
               <Tooltip 
-                cursor={{fill: '#f5f5f7', radius: 4}}
-                contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '12px', fontSize: '13px'}} 
+                cursor={{fill: '#86868b', opacity: 0.1, radius: 4}}
+                contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', padding: '12px', fontSize: '13px', backgroundColor: '#fff', color: '#1d1d1f'}} 
               />
               <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={40}>
                  {industryData.map((entry, index) => (
@@ -73,7 +73,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 h-96 overflow-y-auto">
+        <div className="bg-white p-8 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 h-96 overflow-y-auto transition-colors">
           <h2 className="text-lg font-semibold text-[#1d1d1f] mb-6">Recent Activity</h2>
           <div className="space-y-6">
              {[1,2,3].map((_, i) => (

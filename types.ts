@@ -1,3 +1,4 @@
+
 export enum Industry {
   Technology = 'Technology',
   Manufacturing = 'Manufacturing',
@@ -85,7 +86,7 @@ export interface Broker {
 export interface Lead {
   id: string;
   name: string;
-  role?: string; // e.g., "Entrepreneur", "Series A Investor"
+  role?: string; // e.g., "Entrepreneur", "Series A Investor", "Seller"
   nationality?: string;
   email: string;
   phone: string;
@@ -97,6 +98,7 @@ export interface Lead {
   dateAdded: string;
   lastContactDate?: string;
   status: 'Active' | 'Cold' | 'Dead' | 'Paused';
+  onboardingStatus?: 'Pending' | 'Completed'; // New field for form tracking
   touchCountWeek: number;
   priorityScore: number;
 }

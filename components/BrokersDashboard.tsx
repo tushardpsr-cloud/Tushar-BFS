@@ -15,7 +15,7 @@ export const BrokersDashboard: React.FC<BrokersDashboardProps> = ({ brokers }) =
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {brokers.map(broker => (
-                <div key={broker.id} className="bg-white p-6 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 hover:shadow-lg transition-shadow">
+                <div key={broker.id} className="bg-white p-6 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between mb-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-lg font-bold text-[#1d1d1f]">
                             {broker.name.charAt(0)}

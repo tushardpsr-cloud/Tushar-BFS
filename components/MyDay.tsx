@@ -25,8 +25,7 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
     <div className="space-y-8 animate-fade-in pb-12">
       <header className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">My Day</h2>
-          <p className="text-[#86868b] mt-1">Here is your prioritized focus list for today.</p>
+          <h2 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">Overview</h2>
         </div>
         <div className="text-right">
              <p className="text-3xl font-light text-[#0071e3]">{new Date().toLocaleDateString('en-GB', { weekday: 'long' })}</p>
@@ -40,11 +39,11 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
             
             {/* TASKS SECTION - Only show if there are tasks */}
             {activeTasks.length > 0 && (
-                <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden mb-6">
+                <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden mb-6 transition-colors">
                      <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
                         <h3 className="font-semibold text-[#1d1d1f] flex items-center">
                             <CalendarCheck size={18} className="mr-2 text-[#0071e3]" />
-                            Reminders & Tasks
+                            Reminders
                         </h3>
                     </div>
                     <div className="p-4 space-y-2">
@@ -65,10 +64,9 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
                 </div>
             )}
 
-            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden">
+            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden transition-colors">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0">
-                    <h3 className="font-semibold text-[#1d1d1f]">Focus List <span className="text-[#86868b] font-normal ml-1">({focusList.length})</span></h3>
-                    <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-1 rounded-full uppercase tracking-wide">Protocol Active</span>
+                    <h3 className="font-semibold text-[#1d1d1f]">Task List <span className="text-[#86868b] font-normal ml-1">({focusList.length})</span></h3>
                 </div>
                 <div className="divide-y divide-gray-50">
                     {focusList.length === 0 && (
@@ -92,10 +90,6 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
                             </div>
                             
                             <div className="flex items-center space-x-6">
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-[10px] uppercase font-bold text-[#86868b] tracking-wider">Priority</p>
-                                    <p className={`text-sm font-bold ${item.priorityScore > 80 ? 'text-red-500' : 'text-[#1d1d1f]'}`}>{item.priorityScore}</p>
-                                </div>
                                 <div className="flex space-x-2">
                                     <button onClick={() => onLogInteraction(item.id, 'Call')} className="p-2 rounded-full bg-gray-100 text-[#1d1d1f] hover:bg-[#34c759] hover:text-white transition-colors" title="Log Call">
                                         <Phone size={16} />
@@ -113,17 +107,17 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
 
         {/* Widgets Column */}
         <div className="space-y-6">
-            {/* Hot Deals Widget */}
-            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 p-6">
+            {/* Ongoing Deals Widget */}
+            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 p-6 transition-colors">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-[#1d1d1f] flex items-center">
                         <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>
-                        Hot Deals
+                        Ongoing Deals
                     </h3>
                 </div>
                 <div className="space-y-4">
                     {hotDeals.map(deal => (
-                        <div key={deal.id} className="bg-[#f5f5f7] p-3 rounded-xl">
+                        <div key={deal.id} className="bg-[#f5f5f7] p-3 rounded-xl transition-colors">
                             <div className="flex justify-between items-start">
                                 <p className="text-xs font-semibold text-[#1d1d1f] line-clamp-1">{deal.title}</p>
                                 <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-medium">{deal.stage}</span>
@@ -135,7 +129,7 @@ export const MyDay: React.FC<MyDayProps> = ({ leads, listings, tasks = [], onLog
             </div>
 
             {/* Aging / Risk Widget */}
-            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 p-6">
+            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 p-6 transition-colors">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-[#1d1d1f] flex items-center">
                          <AlertTriangle size={14} className="mr-2 text-red-500" />

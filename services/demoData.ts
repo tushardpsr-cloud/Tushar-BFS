@@ -1,4 +1,4 @@
-import { Lead, Listing, MatchFeedback, Industry, ListingType, DealStage, FeedbackStatus } from '../types';
+import { Lead, Listing, MatchFeedback, Industry, ListingType, DealStage, FeedbackStatus, Task } from '../types';
 
 // Helper to generate random IDs
 const uuid = () => Math.random().toString(36).substr(2, 9);
@@ -17,10 +17,50 @@ const AMENITIES = ['Gas Connection', 'Outdoor Terrace', 'Alcohol License Ready',
 const FIRST_NAMES = ['Mohammed', 'Sarah', 'John', 'Ahmed', 'Priya', 'Wei', 'Fatima', 'David', 'Elena', 'Omar', 'Jessica', 'Rahul', 'Sofia', 'Ali', 'Maria', 'James', 'Layla', 'Arjun', 'Isabella', 'Hassan'];
 const LAST_NAMES = ['Al Maktoum', 'Smith', 'Chen', 'Khan', 'Patel', 'Rodriguez', 'Ivanov', 'Al Futtaim', 'Jones', 'Gupta', 'Silva', 'Tanaka', 'Muller', 'Santos', 'Oconnor', 'Kim', 'Lopez', 'Singh', 'Al Sayed'];
 
+export const generateDemoTasks = (): Task[] => {
+  return [
+    {
+      id: 't-1',
+      title: 'Draft NDA for Project Blue Sky (SaaS Acquisition)',
+      dueDate: 'Today',
+      completed: false,
+      priority: 'High'
+    },
+    {
+      id: 't-2',
+      title: 'Call Sheikh Mohammed re: DIFC valuation discrepancy',
+      dueDate: 'Today',
+      completed: false,
+      priority: 'High'
+    },
+    {
+      id: 't-3',
+      title: 'Prepare Investment Memo for "Cloud Kitchen Network"',
+      dueDate: 'Tomorrow',
+      completed: false,
+      priority: 'Normal'
+    },
+    {
+      id: 't-4',
+      title: 'Follow up with Sarah Jenkins on lease terms',
+      dueDate: 'Tomorrow',
+      completed: false,
+      priority: 'Normal'
+    },
+    {
+        id: 't-5',
+        title: 'Schedule viewing for Marina Yacht Club',
+        dueDate: 'Next Week',
+        completed: false,
+        priority: 'Normal'
+    }
+  ];
+};
+
 export const generateDemoListings = (): Listing[] => {
   const listings: Listing[] = [];
   
-  // 1. High-End Restaurants (Sale)
+  // 1. High-End Restaurants (Sale) - HOT DEAL
   listings.push({
     id: uuid(),
     title: 'La Dolce Vita Italian',
@@ -40,11 +80,12 @@ export const generateDemoListings = (): Listing[] => {
     sellerName: 'Marco P.',
     sellerContact: 'marco@dolce.ae',
     dateAdded: daysAgo(45),
+    lastContactDate: daysAgo(2),
     touchCountWeek: 2,
     priorityScore: 90
   });
 
-  // 2. Coffee Shop (Rent/Key Money)
+  // 2. Coffee Shop (Rent/Key Money) - ROUTINE FOLLOW UP
   listings.push({
     id: uuid(),
     title: 'Brew & Bean Corner',
@@ -64,16 +105,40 @@ export const generateDemoListings = (): Listing[] => {
     sellerName: 'Ahmed K.',
     sellerContact: 'ahmed@brew.ae',
     dateAdded: daysAgo(5),
+    lastContactDate: daysAgo(6),
     touchCountWeek: 0,
     priorityScore: 75
   });
 
-  // Generate 78 more listings (Total ~80)
-  for (let i = 0; i < 78; i++) {
+  // 3. Tech Company - AT RISK
+  listings.push({
+    id: uuid(),
+    title: 'Project Nexus - AI Logistics',
+    type: ListingType.Sale,
+    industry: Industry.Technology,
+    location: 'Internet City',
+    askingPrice: 15000000,
+    revenue: 5000000,
+    ebitda: 1200000,
+    cashflow: 1000000,
+    sqft: 2000,
+    description: 'B2B Logistics platform with recurring revenue. Seller is losing patience.',
+    stage: DealStage.Contacted,
+    sellerName: 'Dr. Alistair',
+    sellerContact: 'alistair@nexus.ai',
+    dateAdded: daysAgo(60),
+    lastContactDate: daysAgo(35), // > 30 days
+    touchCountWeek: 0,
+    priorityScore: 60
+  });
+
+  // Generate 7 more listings (Total ~10 for manageable routine list)
+  for (let i = 0; i < 7; i++) {
     const isSale = Math.random() > 0.4;
     const isVending = Math.random() > 0.9; // Rare
     const location = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
     const revenue = Math.floor(Math.random() * 5000000) + 500000;
+    const contactDaysAgo = Math.floor(Math.random() * 45); // Mix of recent and old
     
     listings.push({
       id: `lst-${i}`,
@@ -94,7 +159,8 @@ export const generateDemoListings = (): Listing[] => {
       sellerName: `Seller ${i}`,
       sellerContact: `seller${i}@demo.com`,
       dateAdded: daysAgo(Math.floor(Math.random() * 60)),
-      touchCountWeek: Math.floor(Math.random() * 3),
+      lastContactDate: daysAgo(contactDaysAgo),
+      touchCountWeek: contactDaysAgo > 7 ? 0 : Math.floor(Math.random() * 3),
       priorityScore: Math.floor(Math.random() * 100)
     });
   }
@@ -106,6 +172,7 @@ export const generateDemoLeads = (): Lead[] => {
   const leads: Lead[] = [];
   
   // Specific Scenario Leads
+  // 1. VIP - Active
   leads.push({
     id: 'lead-vip-1',
     name: 'Sheikh Mohammed A.',
@@ -119,11 +186,13 @@ export const generateDemoLeads = (): Lead[] => {
     locationPreference: 'Downtown / DIFC',
     notes: 'Looking for flagship restaurants with >20% EBITDA. Cash ready.',
     dateAdded: daysAgo(10),
+    lastContactDate: daysAgo(2),
     status: 'Active',
     touchCountWeek: 1,
     priorityScore: 95
   });
 
+  // 2. Entrepreneur - Active
   leads.push({
     id: 'lead-ent-1',
     name: 'Sarah Jenkins',
@@ -137,19 +206,41 @@ export const generateDemoLeads = (): Lead[] => {
     locationPreference: 'Marina / JLT',
     notes: 'Ex-London chef opening first Dubai concept. Needs gas connection and terrace.',
     dateAdded: daysAgo(20),
+    lastContactDate: daysAgo(5),
     status: 'Active',
     touchCountWeek: 2,
     priorityScore: 80
   });
 
-  // Generate 98 more generic leads (Total ~100)
+  // 3. Ghost Lead - At Risk
+  leads.push({
+    id: 'lead-ghost-1',
+    name: 'Marcus Thorne',
+    role: 'Silent Investor',
+    nationality: 'USA',
+    email: 'm.thorne@vcap.com',
+    phone: '+1 212 555 1234',
+    minBudget: 5000000,
+    maxBudget: 10000000,
+    preferredIndustries: [Industry.Technology, Industry.Manufacturing],
+    locationPreference: 'Any',
+    notes: 'Showed interest in Project Nexus then went silent.',
+    dateAdded: daysAgo(90),
+    lastContactDate: daysAgo(40), // > 30 days -> AT RISK
+    status: 'Active',
+    touchCountWeek: 0,
+    priorityScore: 65
+  });
+
+  // Generate 12 more generic leads (Total ~15 for manageable routine list)
   const ROLES = ['Serial Entrepreneur', 'First-time Buyer', 'Franchise Operator', 'Family Office', 'Chef Owner', 'Silent Investor'];
   const NATIONALITIES = ['Indian', 'Russian', 'French', 'Saudi', 'Chinese', 'British', 'American', 'Lebanese', 'Egyptian'];
 
-  for (let i = 0; i < 98; i++) {
+  for (let i = 0; i < 12; i++) {
     const budget = Math.floor(Math.random() * 8000000) + 300000;
     const fName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
     const lName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+    const contactDaysAgo = Math.floor(Math.random() * 60);
 
     leads.push({
       id: `lead-${i}`,
@@ -164,8 +255,9 @@ export const generateDemoLeads = (): Lead[] => {
       locationPreference: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
       notes: 'Generated demo lead interested in high ROI assets.',
       dateAdded: daysAgo(Math.floor(Math.random() * 45)),
+      lastContactDate: daysAgo(contactDaysAgo),
       status: 'Active',
-      touchCountWeek: Math.floor(Math.random() * 4),
+      touchCountWeek: contactDaysAgo > 7 ? 0 : Math.floor(Math.random() * 4),
       priorityScore: Math.floor(Math.random() * 100)
     });
   }
