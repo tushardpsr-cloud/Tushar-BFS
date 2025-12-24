@@ -22,11 +22,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isDemoMo
     <div className="w-64 bg-[#fbfbfd]/80 backdrop-blur-xl border-r border-slate-200/60 h-screen fixed left-0 top-0 flex flex-col z-20">
       <div className="p-8 pb-4">
         <h1 className="text-xl font-semibold tracking-tight text-[#1d1d1f]">BrokerBridge</h1>
-        <p className="text-[11px] font-medium text-[#86868b] uppercase tracking-wider mt-1">Control Tower</p>
+        <p className="text-[11px] font-medium text-[#86868b] uppercase tracking-wider mt-1">Control Center</p>
       </div>
       
       <nav className="flex-1 px-4 space-y-1 mt-4">
         {navItems.map((item) => {
+          // Check if item has children (legacy support or future proofing, though currently removed for Buyers)
+          if ((item as any).children) {
+            const children = (item as any).children;
+            const isChildActive = children.some((c: any) => c.id === currentView);
+            const Icon = item.icon;
+            
+            return (
+              <div key={item.id} className="space-y-1">
+                 <div className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isChildActive ? 'text-[#1d1d1f]' : 'text-[#86868b]'}`}>
+                    <Icon size={18} className={isChildActive ? 'text-[#0071e3]' : 'opacity-70'} />
+                    <span>{item.label}</span>
+                 </div>
+                 <div className="pl-9 space-y-1">
+                    {children.map((child: any) => {
+                        const isItemActive = currentView === child.id;
+                        return (
+                          <button
+                            key={child.id}
+                            onClick={() => setView(child.id)}
+                            className={`w-full flex items-center space-x-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              isItemActive 
+                                ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06)] text-[#1d1d1f]' 
+                                : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5'
+                            }`}
+                          >
+                            <span>{child.label}</span>
+                          </button>
+                        );
+                    })}
+                 </div>
+              </div>
+            );
+          }
+
           const Icon = item.icon;
           const isActive = currentView === item.id;
           return (

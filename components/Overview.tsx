@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Lead, Listing, Task } from '../types';
 import { getDailyFocusList, getHotDeals, getAgingItems } from '../services/crmLogic';
-import { Phone, Mail, CheckCircle2, AlertTriangle, CalendarCheck, CheckSquare, ArrowRight, Clock, Plus, Check, X } from 'lucide-react';
+import { Phone, Mail, CheckCircle2, AlertTriangle, CalendarCheck, CheckSquare, ArrowRight, Clock, Plus, Check, X, Trash2, Edit2 } from 'lucide-react';
 
 interface OverviewProps {
   leads: Lead[];
@@ -9,6 +9,8 @@ interface OverviewProps {
   tasks?: Task[];
   onLogInteraction: (entityId: string, type: 'Call' | 'Email' | 'Note') => void;
   onCompleteTask?: (taskId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onEditTask?: (task: Task) => void;
   onNavigate?: (view: string) => void;
   onAddTask?: (task: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => void;
 }
@@ -19,6 +21,8 @@ export const Overview: React.FC<OverviewProps> = ({
   tasks = [], 
   onLogInteraction, 
   onCompleteTask,
+  onDeleteTask,
+  onEditTask,
   onNavigate,
   onAddTask
 }) => {
@@ -26,6 +30,7 @@ export const Overview: React.FC<OverviewProps> = ({
   
   // Task Modal State
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskData, setNewTaskData] = useState({ title: '', dueDate: '', priority: 'Normal' as 'High' | 'Normal' });
 
   // Generate base lists
@@ -49,6 +54,7 @@ export const Overview: React.FC<OverviewProps> = ({
   };
 
   const handleAddTaskClick = () => {
+      setEditingTaskId(null);
       // Default to today's date in YYYY-MM-DD format (Local time)
       const today = new Date();
       const formattedDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -57,10 +63,52 @@ export const Overview: React.FC<OverviewProps> = ({
       setIsTaskModalOpen(true);
   };
 
+  const handleEditTaskClick = (task: Task) => {
+      setEditingTaskId(task.id);
+      
+      // Helper to convert "Today"/"Tomorrow" text from demo data to YYYY-MM-DD for the input
+      let isoDate = task.dueDate;
+      const lowerDate = task.dueDate.toLowerCase();
+      
+      if (lowerDate === 'today') {
+          const d = new Date();
+          isoDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      } else if (lowerDate === 'tomorrow') {
+          const d = new Date();
+          d.setDate(d.getDate() + 1);
+          isoDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      } else if (lowerDate === 'next week') {
+          const d = new Date();
+          d.setDate(d.getDate() + 7);
+          isoDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+
+      setNewTaskData({ 
+          title: task.title, 
+          dueDate: isoDate, 
+          priority: task.priority 
+      });
+      setIsTaskModalOpen(true);
+  };
+
   const handleSaveTask = (e: React.FormEvent) => {
       e.preventDefault();
-      if (onAddTask && newTaskData.title.trim()) {
-          onAddTask(newTaskData);
+      if (newTaskData.title.trim()) {
+          if (editingTaskId && onEditTask) {
+              // Edit Mode
+              const originalTask = tasks.find(t => t.id === editingTaskId);
+              if (originalTask) {
+                  onEditTask({
+                      ...originalTask,
+                      title: newTaskData.title,
+                      dueDate: newTaskData.dueDate,
+                      priority: newTaskData.priority
+                  });
+              }
+          } else if (onAddTask) {
+              // Create Mode
+              onAddTask(newTaskData);
+          }
           setIsTaskModalOpen(false);
       }
   };
@@ -195,6 +243,26 @@ export const Overview: React.FC<OverviewProps> = ({
                                        {task.priority}
                                    </span>
                                )}
+                               
+                               <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ml-3">
+                                   {/* Edit Button */}
+                                   <button
+                                       onClick={(e) => { e.stopPropagation(); handleEditTaskClick(task); }}
+                                       className="p-1.5 text-[#86868b] hover:text-[#0071e3] hover:bg-blue-50 rounded-lg transition-all"
+                                       title="Edit Task"
+                                   >
+                                       <Edit2 size={14} />
+                                   </button>
+                                   
+                                   {/* Delete Button */}
+                                   <button 
+                                       onClick={(e) => { e.stopPropagation(); onDeleteTask && onDeleteTask(task.id); }}
+                                       className="ml-1 p-1.5 text-[#86868b] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                       title="Delete Task"
+                                   >
+                                       <Trash2 size={14} />
+                                   </button>
+                               </div>
                            </div>
                        ))}
                    </div>
@@ -328,7 +396,9 @@ export const Overview: React.FC<OverviewProps> = ({
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
               <div className="bg-white rounded-[24px] w-full max-w-md shadow-2xl scale-100 animate-in zoom-in-95 duration-200 border border-white/20 overflow-hidden">
                   <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                      <h3 className="text-lg font-semibold text-[#1d1d1f]">New Task</h3>
+                      <h3 className="text-lg font-semibold text-[#1d1d1f]">
+                          {editingTaskId ? 'Edit Task' : 'New Task'}
+                      </h3>
                       <button onClick={() => setIsTaskModalOpen(false)} className="text-[#86868b] hover:text-[#1d1d1f] transition-colors bg-white border border-gray-200 p-1 rounded-full shadow-sm">
                           <X size={16} />
                       </button>
@@ -380,7 +450,7 @@ export const Overview: React.FC<OverviewProps> = ({
                               type="submit" 
                               className="px-6 py-2 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full text-sm font-medium shadow-lg shadow-blue-500/30 transition-transform active:scale-95"
                           >
-                              Create Task
+                              {editingTaskId ? 'Save Changes' : 'Create Task'}
                           </button>
                       </div>
                   </form>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lead, Interaction } from '../types';
-import { Search, Mail, Phone, Plus, User } from 'lucide-react';
+import { Search, Mail, Phone, Plus, User, CheckCircle2, Users } from 'lucide-react';
 
 interface BuyersDashboardProps {
   leads: Lead[];
@@ -11,25 +11,51 @@ interface BuyersDashboardProps {
 export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interactions, setLeads }) => {
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterMode, setFilterMode] = useState<'all' | 'qualified'>('all');
 
   const selectedLead = leads.find(l => l.id === selectedLeadId);
   const leadInteractions = interactions.filter(i => i.entityId === selectedLeadId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const filteredLeads = leads.filter(l => 
-    l.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLeads = leads.filter(l => {
+    const matchesSearch = l.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterMode === 'qualified' ? l.onboardingStatus === 'Completed' : true;
+    return matchesSearch && matchesFilter;
+  });
+
+  const pageTitle = filterMode === 'qualified' ? 'Qualified Buyers' : 'All Buyers';
+  const pageSubtitle = filterMode === 'qualified' 
+    ? 'Vetted buyers with completed onboarding profiles.' 
+    : 'Complete database of active and pending buyers.';
 
   return (
     <div className="h-full flex flex-col pb-6">
        <div className="flex justify-between items-center mb-6">
         <div>
-           <h2 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">Buyers</h2>
-           <p className="text-[#86868b] mt-1">Manage active buyers and track engagement.</p>
+           <h2 className="text-3xl font-semibold text-[#1d1d1f] tracking-tight">{pageTitle}</h2>
+           <p className="text-[#86868b] mt-1">{pageSubtitle}</p>
         </div>
-        <button className="bg-[#0071e3] hover:bg-[#0077ED] text-white px-5 py-2 rounded-full flex items-center space-x-2 shadow-md shadow-blue-500/20 text-sm font-medium">
-            <Plus size={16} />
-            <span>Add Buyer</span>
-        </button>
+        <div className="flex items-center space-x-4">
+            {/* Toggle Switch */}
+            <div className="flex bg-gray-200/80 p-1 rounded-lg">
+                <button 
+                  onClick={() => { setFilterMode('all'); setSelectedLeadId(null); }}
+                  className={`px-4 py-1.5 rounded-md text-xs font-semibold flex items-center transition-all ${filterMode === 'all' ? 'bg-white shadow-sm text-[#1d1d1f]' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}
+                >
+                    <Users size={14} className="mr-2" /> All Buyers
+                </button>
+                <button 
+                  onClick={() => { setFilterMode('qualified'); setSelectedLeadId(null); }}
+                  className={`px-4 py-1.5 rounded-md text-xs font-semibold flex items-center transition-all ${filterMode === 'qualified' ? 'bg-white shadow-sm text-[#1d1d1f]' : 'text-[#86868b] hover:text-[#1d1d1f]'}`}
+                >
+                    <CheckCircle2 size={14} className="mr-2" /> Qualified
+                </button>
+            </div>
+            
+            <button className="bg-[#0071e3] hover:bg-[#0077ED] text-white px-5 py-2 rounded-full flex items-center space-x-2 shadow-md shadow-blue-500/20 text-sm font-medium">
+                <Plus size={16} />
+                <span>Add Buyer</span>
+            </button>
+        </div>
       </div>
 
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -48,6 +74,11 @@ export const BuyersDashboard: React.FC<BuyersDashboardProps> = ({ leads, interac
                 </div>
              </div>
              <div className="overflow-y-auto flex-1 p-2 space-y-1">
+                 {filteredLeads.length === 0 && (
+                     <div className="p-6 text-center text-[#86868b] text-sm">
+                         No buyers found.
+                     </div>
+                 )}
                  {filteredLeads.map(lead => (
                      <button 
                         key={lead.id}

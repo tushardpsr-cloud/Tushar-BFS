@@ -300,6 +300,14 @@ export default function App() {
     setTasks(prev => [newTask, ...prev]);
   };
 
+  const handleEditTask = (updatedTask: Task) => {
+    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'overview':
@@ -309,6 +317,8 @@ export default function App() {
             tasks={tasks} 
             onLogInteraction={handleLogInteraction} 
             onCompleteTask={(id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))} 
+            onDeleteTask={handleDeleteTask}
+            onEditTask={handleEditTask}
             onNavigate={setCurrentView}
             onAddTask={handleAddTask}
         />;
