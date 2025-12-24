@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Lead, Listing, MatchTier, MatchFeedback, FeedbackStatus } from '../types';
 import { calculateMatchTier } from '../services/crmLogic';
-import { Search, Star, TrendingUp, AlertCircle, Briefcase, Send, CheckCircle2, ChevronRight, Filter, ThumbsUp, ThumbsDown, BarChart2, Layout, Clock, MessageCircle, MapPin, Ruler, Utensils, Smartphone } from 'lucide-react';
+import { Search, Star, TrendingUp, AlertCircle, Briefcase, Send, CheckCircle2, ChevronRight, Filter, ThumbsUp, ThumbsDown, BarChart2, Layout, Clock, MessageCircle, MapPin, Ruler, Utensils, Smartphone, Check } from 'lucide-react';
 
 const formatCurrency = (num: number) => 
   new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
@@ -19,6 +19,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
   const isListing = viewMode === 'BuyerCentric';
   const item = match.entity;
   const isIgnored = match.isIgnored;
+  const hasFeedback = !!match.feedback;
 
   // Visual logic for Feedback Mode (The Lead's Input)
   const isPositive = match.feedback?.status === FeedbackStatus.Positive;
@@ -92,14 +93,25 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                  </>
              ) : (
                  /* MODE 2: PLANNING (Broker Action) */
-                 <button 
-                    onClick={(e) => { e.stopPropagation(); onShare && onShare(); }}
-                    className="flex items-center space-x-1 bg-[#25D366] hover:bg-[#128C7E] text-white px-2 py-1 rounded-full text-[10px] font-semibold transition-all shadow-sm"
-                    title="Send WhatsApp Template with Interactive Buttons"
-                 >
-                    <Send size={10} />
-                    <span>Send WA</span>
-                 </button>
+                 hasFeedback ? (
+                    <button 
+                        disabled
+                        className="flex items-center space-x-1 bg-gray-100 text-gray-400 px-2 py-1 rounded-full text-[10px] font-semibold transition-all cursor-default border border-transparent"
+                        title="Already Sent"
+                    >
+                        <Check size={10} />
+                        <span>WA Sent</span>
+                    </button>
+                 ) : (
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onShare && onShare(); }}
+                        className="flex items-center space-x-1 bg-[#25D366] hover:bg-[#128C7E] text-white px-2 py-1 rounded-full text-[10px] font-semibold transition-all shadow-sm"
+                        title="Send WhatsApp Template with Interactive Buttons"
+                    >
+                        <Send size={10} />
+                        <span>Send WA</span>
+                    </button>
+                 )
              )}
         </div>
       </div>
