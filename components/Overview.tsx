@@ -1,37 +1,37 @@
 import React, { useState } from 'react';
-import { Lead, Listing, Task } from '../types';
+import { Lead, Listing, LogEntry } from '../types';
 import { getDailyFocusList, getHotDeals, getAgingItems } from '../services/crmLogic';
 import { Phone, Mail, CheckCircle2, AlertTriangle, CalendarCheck, CheckSquare, ArrowRight, Clock, Plus, Check, X, Trash2, Edit2 } from 'lucide-react';
 
 interface OverviewProps {
   leads: Lead[];
   listings: Listing[];
-  tasks?: Task[];
+  logs?: LogEntry[];
   onLogInteraction: (entityId: string, type: 'Call' | 'Email' | 'Note') => void;
-  onCompleteTask?: (taskId: string) => void;
-  onDeleteTask?: (taskId: string) => void;
-  onEditTask?: (task: Task) => void;
+  onCompleteLog?: (logId: string) => void;
+  onDeleteLog?: (logId: string) => void;
+  onEditLog?: (log: LogEntry) => void;
   onNavigate?: (view: string) => void;
-  onAddTask?: (task: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => void;
+  onAddLog?: (log: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => void;
 }
 
 export const Overview: React.FC<OverviewProps> = ({ 
   leads, 
   listings, 
-  tasks = [], 
+  logs = [], 
   onLogInteraction, 
-  onCompleteTask,
-  onDeleteTask,
-  onEditTask,
+  onCompleteLog,
+  onDeleteLog,
+  onEditLog,
   onNavigate,
-  onAddTask
+  onAddLog
 }) => {
   const [completedFollowUpIds, setCompletedFollowUpIds] = useState<Set<string>>(new Set());
   
-  // Task Modal State
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [newTaskData, setNewTaskData] = useState({ title: '', dueDate: '', priority: 'Normal' as 'High' | 'Normal' });
+  // Log Modal State
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [editingLogId, setEditingLogId] = useState<string | null>(null);
+  const [newLogData, setNewLogData] = useState({ title: '', dueDate: '', priority: 'Normal' as 'High' | 'Normal' });
 
   // Generate base lists
   const focusListRaw = getDailyFocusList(leads, listings);
@@ -41,8 +41,8 @@ export const Overview: React.FC<OverviewProps> = ({
   const formatCurrency = (num: number) => 
     new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(num);
 
-  // Sort Tasks: Pending first, then Completed
-  const sortedTasks = [...tasks].sort((a, b) => {
+  // Sort Logs: Pending first, then Completed
+  const sortedLogs = [...logs].sort((a, b) => {
       if (a.completed === b.completed) return 0;
       return a.completed ? 1 : -1;
   });
@@ -53,22 +53,22 @@ export const Overview: React.FC<OverviewProps> = ({
     return Math.floor(diff / (1000 * 3600 * 24));
   };
 
-  const handleAddTaskClick = () => {
-      setEditingTaskId(null);
+  const handleAddLogClick = () => {
+      setEditingLogId(null);
       // Default to today's date in YYYY-MM-DD format (Local time)
       const today = new Date();
       const formattedDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
       
-      setNewTaskData({ title: '', dueDate: formattedDate, priority: 'Normal' });
-      setIsTaskModalOpen(true);
+      setNewLogData({ title: '', dueDate: formattedDate, priority: 'Normal' });
+      setIsLogModalOpen(true);
   };
 
-  const handleEditTaskClick = (task: Task) => {
-      setEditingTaskId(task.id);
+  const handleEditLogClick = (log: LogEntry) => {
+      setEditingLogId(log.id);
       
       // Helper to convert "Today"/"Tomorrow" text from demo data to YYYY-MM-DD for the input
-      let isoDate = task.dueDate;
-      const lowerDate = task.dueDate.toLowerCase();
+      let isoDate = log.dueDate;
+      const lowerDate = log.dueDate.toLowerCase();
       
       if (lowerDate === 'today') {
           const d = new Date();
@@ -83,33 +83,33 @@ export const Overview: React.FC<OverviewProps> = ({
           isoDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
       }
 
-      setNewTaskData({ 
-          title: task.title, 
+      setNewLogData({ 
+          title: log.title, 
           dueDate: isoDate, 
-          priority: task.priority 
+          priority: log.priority 
       });
-      setIsTaskModalOpen(true);
+      setIsLogModalOpen(true);
   };
 
-  const handleSaveTask = (e: React.FormEvent) => {
+  const handleSaveLog = (e: React.FormEvent) => {
       e.preventDefault();
-      if (newTaskData.title.trim()) {
-          if (editingTaskId && onEditTask) {
+      if (newLogData.title.trim()) {
+          if (editingLogId && onEditLog) {
               // Edit Mode
-              const originalTask = tasks.find(t => t.id === editingTaskId);
-              if (originalTask) {
-                  onEditTask({
-                      ...originalTask,
-                      title: newTaskData.title,
-                      dueDate: newTaskData.dueDate,
-                      priority: newTaskData.priority
+              const originalLog = logs.find(t => t.id === editingLogId);
+              if (originalLog) {
+                  onEditLog({
+                      ...originalLog,
+                      title: newLogData.title,
+                      dueDate: newLogData.dueDate,
+                      priority: newLogData.priority
                   });
               }
-          } else if (onAddTask) {
+          } else if (onAddLog) {
               // Create Mode
-              onAddTask(newTaskData);
+              onAddLog(newLogData);
           }
-          setIsTaskModalOpen(false);
+          setIsLogModalOpen(false);
       }
   };
 
@@ -125,18 +125,14 @@ export const Overview: React.FC<OverviewProps> = ({
   };
 
   // Merge Logic for Routine Follow Ups
-  // We want to keep completed items visible even if they drop out of getDailyFocusList due to the update
   const combinedItemsMap = new Map<string, any>();
   
-  // 1. Add current active items
   focusListRaw.forEach((item: any) => combinedItemsMap.set(item.id, { ...item, isCompleted: false }));
 
-  // 2. Add locally completed items (restoring them if they dropped out)
   completedFollowUpIds.forEach(id => {
       let item = combinedItemsMap.get(id);
       
       if (!item) {
-          // It dropped out, find it in source
           const lead = leads.find(l => l.id === id);
           const listing = listings.find(l => l.id === id);
           const original = lead || listing;
@@ -173,25 +169,25 @@ export const Overview: React.FC<OverviewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* UNIFIED TASK MODULE */}
+        {/* UNIFIED LOG MODULE */}
         <div className="lg:col-span-2">
            <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/50 overflow-hidden flex flex-col h-full">
                
-               {/* UPPER SECTION: Tasks */}
+               {/* UPPER SECTION: Log */}
                <div className="p-8 pb-6">
                    <div className="flex items-center justify-between mb-6">
                        <h3 className="text-sm font-bold text-[#1d1d1f] uppercase tracking-wide flex items-center">
                            <CheckSquare size={16} className="mr-2 text-[#0071e3]" />
-                           Tasks
+                           Log
                        </h3>
                        <div className="flex items-center space-x-3">
                            <span className="text-xs font-medium text-[#86868b] bg-gray-100 px-2 py-1 rounded-full">
-                               {tasks.filter(t => !t.completed).length} Pending
+                               {logs.filter(t => !t.completed).length} Pending
                            </span>
                            <button 
-                                onClick={handleAddTaskClick}
+                                onClick={handleAddLogClick}
                                 className="p-1 rounded-full bg-[#f5f5f7] hover:bg-[#0071e3] hover:text-white text-[#0071e3] transition-colors"
-                                title="Add Task"
+                                title="Add Log Entry"
                            >
                                <Plus size={16} />
                            </button>
@@ -199,24 +195,24 @@ export const Overview: React.FC<OverviewProps> = ({
                    </div>
                    
                    <div className="space-y-3">
-                       {sortedTasks.length === 0 && (
+                       {sortedLogs.length === 0 && (
                            <div className="p-4 border border-dashed border-gray-200 rounded-xl text-center text-[#86868b] text-sm italic">
-                               No tasks.
+                               No log entries.
                            </div>
                        )}
-                       {sortedTasks.map(task => (
+                       {sortedLogs.map(log => (
                            <div 
-                                key={task.id} 
+                                key={log.id} 
                                 className={`group flex items-center p-3.5 border rounded-xl transition-all duration-200 ${
-                                    task.completed 
+                                    log.completed 
                                     ? 'bg-gray-50 border-gray-100 opacity-75' 
                                     : 'bg-white border-gray-100 hover:border-blue-200 hover:shadow-sm'
                                 }`}
                            >
                                <button 
-                                   onClick={() => onCompleteTask && onCompleteTask(task.id)}
+                                   onClick={() => onCompleteLog && onCompleteLog(log.id)}
                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors mr-4 flex-shrink-0 focus:outline-none ${
-                                       task.completed
+                                       log.completed
                                        ? 'bg-[#0071e3] border-[#0071e3] text-white'
                                        : 'border-gray-300 group-hover:border-[#0071e3] text-transparent'
                                    }`}
@@ -225,40 +221,40 @@ export const Overview: React.FC<OverviewProps> = ({
                                </button>
                                <div className="flex-1 min-w-0">
                                    <p className={`text-sm font-semibold truncate transition-all ${
-                                       task.completed ? 'text-[#86868b] line-through decoration-slate-400' : 'text-[#1d1d1f]'
+                                       log.completed ? 'text-[#86868b] line-through decoration-slate-400' : 'text-[#1d1d1f]'
                                    }`}>
-                                       {task.title}
+                                       {log.title}
                                    </p>
-                                   {!task.completed && (
+                                   {!log.completed && (
                                        <p className="text-xs text-[#86868b] mt-0.5 flex items-center">
                                            <CalendarCheck size={10} className="mr-1" />
-                                           Due: {task.dueDate}
+                                           Due: {log.dueDate}
                                        </p>
                                    )}
                                </div>
-                               {!task.completed && (
+                               {!log.completed && (
                                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider ${
-                                       task.priority === 'High' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'
+                                       log.priority === 'High' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'
                                    }`}>
-                                       {task.priority}
+                                       {log.priority}
                                    </span>
                                )}
                                
                                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ml-3">
                                    {/* Edit Button */}
                                    <button
-                                       onClick={(e) => { e.stopPropagation(); handleEditTaskClick(task); }}
+                                       onClick={(e) => { e.stopPropagation(); handleEditLogClick(log); }}
                                        className="p-1.5 text-[#86868b] hover:text-[#0071e3] hover:bg-blue-50 rounded-lg transition-all"
-                                       title="Edit Task"
+                                       title="Edit Log"
                                    >
                                        <Edit2 size={14} />
                                    </button>
                                    
                                    {/* Delete Button */}
                                    <button 
-                                       onClick={(e) => { e.stopPropagation(); onDeleteTask && onDeleteTask(task.id); }}
+                                       onClick={(e) => { e.stopPropagation(); onDeleteLog && onDeleteLog(log.id); }}
                                        className="ml-1 p-1.5 text-[#86868b] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                       title="Delete Task"
+                                       title="Delete Log"
                                    >
                                        <Trash2 size={14} />
                                    </button>
@@ -391,26 +387,26 @@ export const Overview: React.FC<OverviewProps> = ({
         </div>
       </div>
 
-      {/* Task Modal */}
-      {isTaskModalOpen && (
+      {/* Log Modal */}
+      {isLogModalOpen && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
               <div className="bg-white rounded-[24px] w-full max-w-md shadow-2xl scale-100 animate-in zoom-in-95 duration-200 border border-white/20 overflow-hidden">
                   <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                       <h3 className="text-lg font-semibold text-[#1d1d1f]">
-                          {editingTaskId ? 'Edit Task' : 'New Task'}
+                          {editingLogId ? 'Edit Log Entry' : 'New Log Entry'}
                       </h3>
-                      <button onClick={() => setIsTaskModalOpen(false)} className="text-[#86868b] hover:text-[#1d1d1f] transition-colors bg-white border border-gray-200 p-1 rounded-full shadow-sm">
+                      <button onClick={() => setIsLogModalOpen(false)} className="text-[#86868b] hover:text-[#1d1d1f] transition-colors bg-white border border-gray-200 p-1 rounded-full shadow-sm">
                           <X size={16} />
                       </button>
                   </div>
-                  <form onSubmit={handleSaveTask} className="p-6 space-y-4">
+                  <form onSubmit={handleSaveLog} className="p-6 space-y-4">
                       <div>
-                          <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-1.5">Task Title</label>
+                          <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-1.5">Log Title</label>
                           <input 
                               autoFocus
                               required 
-                              value={newTaskData.title} 
-                              onChange={e => setNewTaskData({...newTaskData, title: e.target.value})}
+                              value={newLogData.title} 
+                              onChange={e => setNewLogData({...newLogData, title: e.target.value})}
                               className="w-full px-4 py-2.5 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] placeholder-gray-400 text-sm" 
                               placeholder="e.g. Call Investor" 
                           />
@@ -421,16 +417,16 @@ export const Overview: React.FC<OverviewProps> = ({
                               <input 
                                   type="date"
                                   required
-                                  value={newTaskData.dueDate} 
-                                  onChange={e => setNewTaskData({...newTaskData, dueDate: e.target.value})}
+                                  value={newLogData.dueDate} 
+                                  onChange={e => setNewLogData({...newLogData, dueDate: e.target.value})}
                                   className="w-full px-4 py-2.5 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] text-sm"
                               />
                           </div>
                           <div>
                               <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-1.5">Priority</label>
                               <select 
-                                  value={newTaskData.priority}
-                                  onChange={e => setNewTaskData({...newTaskData, priority: e.target.value as 'High' | 'Normal'})}
+                                  value={newLogData.priority}
+                                  onChange={e => setNewLogData({...newLogData, priority: e.target.value as 'High' | 'Normal'})}
                                   className="w-full px-4 py-2.5 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] text-sm appearance-none"
                               >
                                   <option value="Normal">Normal</option>
@@ -441,7 +437,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       <div className="pt-2 flex justify-end space-x-3">
                           <button 
                               type="button" 
-                              onClick={() => setIsTaskModalOpen(false)} 
+                              onClick={() => setIsLogModalOpen(false)} 
                               className="px-4 py-2 text-sm text-[#86868b] hover:text-[#1d1d1f] font-medium transition-colors"
                           >
                               Cancel
@@ -450,7 +446,7 @@ export const Overview: React.FC<OverviewProps> = ({
                               type="submit" 
                               className="px-6 py-2 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full text-sm font-medium shadow-lg shadow-blue-500/30 transition-transform active:scale-95"
                           >
-                              {editingTaskId ? 'Save Changes' : 'Create Task'}
+                              {editingLogId ? 'Save Changes' : 'Create Entry'}
                           </button>
                       </div>
                   </form>

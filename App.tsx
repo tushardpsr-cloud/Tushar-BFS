@@ -7,9 +7,9 @@ import { MatchingHub } from './components/MatchingHub';
 import { BrokersDashboard } from './components/BrokersDashboard';
 import { OnboardingDashboard } from './components/OnboardingDashboard';
 import { VoiceOverlay } from './components/VoiceOverlay';
-import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, Task, VoiceCommandResponse, MatchFeedback, FeedbackStatus, ListingType } from './types';
+import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, LogEntry, VoiceCommandResponse, MatchFeedback, FeedbackStatus, ListingType } from './types';
 import { calculatePriorityScore } from './services/crmLogic';
-import { generateDemoLeads, generateDemoListings, generateDemoFeedback, generateDemoTasks } from './services/demoData';
+import { generateDemoLeads, generateDemoListings, generateDemoFeedback, generateDemoLogs } from './services/demoData';
 
 // --- MOCK DATA (Baseline) ---
 const INITIAL_LISTINGS: Listing[] = [
@@ -162,7 +162,7 @@ export default function App() {
   );
   const [brokers] = useState<Broker[]>(INITIAL_BROKERS);
   const [interactions, setInteractions] = useState<Interaction[]>(INITIAL_INTERACTIONS);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [feedbacks, setFeedbacks] = useState<MatchFeedback[]>(INITIAL_FEEDBACK);
 
   // Toggle Demo Mode
@@ -172,19 +172,19 @@ export default function App() {
       const demoListings = generateDemoListings();
       const demoLeads = generateDemoLeads();
       const demoFeedback = generateDemoFeedback(demoLeads, demoListings);
-      const demoTasks = generateDemoTasks();
+      const demoLogs = generateDemoLogs();
       
       setListings(demoListings.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setLeads(demoLeads.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setFeedbacks(demoFeedback);
-      setTasks(demoTasks);
+      setLogs(demoLogs);
       setIsDemoMode(true);
     } else {
       // STOP DEMO (Reset to initial)
       setListings(INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setLeads(INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setFeedbacks(INITIAL_FEEDBACK);
-      setTasks([]);
+      setLogs([]);
       setIsDemoMode(false);
     }
   };
@@ -276,36 +276,36 @@ export default function App() {
             }
             break;
 
-        case 'CREATE_TASK':
-            const newTask: Task = {
+        case 'CREATE_LOG':
+            const newLog: LogEntry = {
                 id: Math.random().toString(36).substr(2, 9),
                 title: res.data.title || res.transcription,
                 dueDate: res.data.dueDate || 'Today',
                 completed: false,
                 priority: 'Normal'
             };
-            setTasks(prev => [newTask, ...prev]);
+            setLogs(prev => [newLog, ...prev]);
             break;
     }
   };
 
-  const handleAddTask = (taskData: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => {
-    const newTask: Task = {
+  const handleAddLog = (logData: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => {
+    const newLog: LogEntry = {
         id: Math.random().toString(36).substr(2, 9),
-        title: taskData.title,
-        dueDate: taskData.dueDate, 
+        title: logData.title,
+        dueDate: logData.dueDate, 
         completed: false,
-        priority: taskData.priority
+        priority: logData.priority
     };
-    setTasks(prev => [newTask, ...prev]);
+    setLogs(prev => [newLog, ...prev]);
   };
 
-  const handleEditTask = (updatedTask: Task) => {
-    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+  const handleEditLog = (updatedLog: LogEntry) => {
+    setLogs(prev => prev.map(t => t.id === updatedLog.id ? updatedLog : t));
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId));
+  const handleDeleteLog = (logId: string) => {
+    setLogs(prev => prev.filter(t => t.id !== logId));
   };
 
   const renderContent = () => {
@@ -314,13 +314,13 @@ export default function App() {
         return <Overview 
             leads={leads} 
             listings={listings} 
-            tasks={tasks} 
+            logs={logs} 
             onLogInteraction={handleLogInteraction} 
-            onCompleteTask={(id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))} 
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
+            onCompleteLog={(id) => setLogs(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))} 
+            onDeleteLog={handleDeleteLog}
+            onEditLog={handleEditLog}
             onNavigate={setCurrentView}
-            onAddTask={handleAddTask}
+            onAddLog={handleAddLog}
         />;
       case 'onboarding':
         return <OnboardingDashboard leads={leads} setLeads={setLeads} />;
@@ -333,7 +333,7 @@ export default function App() {
       case 'brokers':
         return <BrokersDashboard brokers={brokers} />;
       default:
-        return <Overview leads={leads} listings={listings} tasks={tasks} onLogInteraction={handleLogInteraction} onNavigate={setCurrentView} onAddTask={handleAddTask} />;
+        return <Overview leads={leads} listings={listings} logs={logs} onLogInteraction={handleLogInteraction} onNavigate={setCurrentView} onAddLog={handleAddLog} />;
     }
   };
 

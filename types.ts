@@ -65,7 +65,7 @@ export interface Interaction {
   sentiment?: 'Positive' | 'Neutral' | 'Negative';
 }
 
-export interface Task {
+export interface LogEntry {
   id: string;
   title: string;
   dueDate: string;
@@ -140,7 +140,7 @@ export interface AIMatchResult {
   reasoning: string;
 }
 
-export type VoiceIntent = 'CREATE_LEAD' | 'CREATE_LISTING' | 'LOG_INTERACTION' | 'CREATE_TASK' | 'UNKNOWN';
+export type VoiceIntent = 'CREATE_LEAD' | 'CREATE_LISTING' | 'LOG_INTERACTION' | 'CREATE_LOG' | 'UNKNOWN';
 
 export interface VoiceCommandResponse {
   transcription: string;

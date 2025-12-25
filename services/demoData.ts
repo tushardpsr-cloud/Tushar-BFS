@@ -1,4 +1,4 @@
-import { Lead, Listing, MatchFeedback, Industry, ListingType, DealStage, FeedbackStatus, Task } from '../types';
+import { Lead, Listing, MatchFeedback, Industry, ListingType, DealStage, FeedbackStatus, LogEntry } from '../types';
 
 // Helper to generate random IDs
 const uuid = () => Math.random().toString(36).substr(2, 9);
@@ -17,7 +17,7 @@ const AMENITIES = ['Gas Connection', 'Outdoor Terrace', 'Alcohol License Ready',
 const FIRST_NAMES = ['Mohammed', 'Sarah', 'John', 'Ahmed', 'Priya', 'Wei', 'Fatima', 'David', 'Elena', 'Omar', 'Jessica', 'Rahul', 'Sofia', 'Ali', 'Maria', 'James', 'Layla', 'Arjun', 'Isabella', 'Hassan'];
 const LAST_NAMES = ['Al Maktoum', 'Smith', 'Chen', 'Khan', 'Patel', 'Rodriguez', 'Ivanov', 'Al Futtaim', 'Jones', 'Gupta', 'Silva', 'Tanaka', 'Muller', 'Santos', 'Oconnor', 'Kim', 'Lopez', 'Singh', 'Al Sayed'];
 
-export const generateDemoTasks = (): Task[] => {
+export const generateDemoLogs = (): LogEntry[] => {
   return [
     {
       id: 't-1',

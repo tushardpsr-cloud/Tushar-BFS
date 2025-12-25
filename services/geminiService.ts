@@ -117,7 +117,7 @@ export const processVoiceCommand = async (
          - 'CREATE_LEAD': User wants to add a new buyer. Extract name, maxBudget, preferredIndustries (map to Known Industries), notes.
          - 'CREATE_LISTING': User wants to add a new business for sale. Extract title, askingPrice, ebitda, industry, location.
          - 'LOG_INTERACTION': User is summarizing a call or meeting. Fuzzy match the person/business name from Context. Extract the summary as 'notes'.
-         - 'CREATE_TASK': User wants to set a reminder or task. Extract 'title' and 'dueDate' (e.g. "tomorrow", "next week").
+         - 'CREATE_LOG': User wants to set a reminder or add a log entry. Extract 'title' and 'dueDate' (e.g. "tomorrow", "next week").
       
       3. If LOG_INTERACTION, you MUST try to find the 'matchedEntityName' from the provided Context lists.
       
@@ -155,7 +155,7 @@ export const processVoiceCommand = async (
                         revenue: { type: Type.NUMBER, nullable: true },
                         industry: { type: Type.STRING, nullable: true },
                         location: { type: Type.STRING, nullable: true },
-                        // Task fields
+                        // Task fields (Mapped to LogEntry)
                         dueDate: { type: Type.STRING, nullable: true }
                     },
                     nullable: true
