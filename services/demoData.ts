@@ -10,6 +10,13 @@ const daysAgo = (days: number) => {
   return d.toISOString();
 };
 
+// Helper for hours ago to showcase specific stages
+const hoursAgo = (hours: number) => {
+  const d = new Date();
+  d.setTime(d.getTime() - (hours * 60 * 60 * 1000));
+  return d.toISOString();
+};
+
 const LOCATIONS = ['JLT Cluster C', 'Dubai Marina Walk', 'Downtown Boulevard', 'DIFC Gate Avenue', 'Business Bay', 'Al Quoz Creative Zone', 'Palm Jumeirah', 'City Walk', 'JBR The Beach', 'Deira Corniche', 'Motor City', 'Dubai Hills', 'Al Barsha 1'];
 const AMENITIES = ['Gas Connection', 'Outdoor Terrace', 'Alcohol License Ready', 'Heavy Kitchen', 'Corner Unit', 'Sea View', 'Valet Parking', 'High Footfall', 'Delivery Zone', 'Shisha License'];
 
@@ -188,6 +195,7 @@ export const generateDemoLeads = (): Lead[] => {
     dateAdded: daysAgo(10),
     lastContactDate: daysAgo(2),
     status: 'Active',
+    onboardingStatus: 'Completed',
     touchCountWeek: 1,
     priorityScore: 95
   });
@@ -228,11 +236,72 @@ export const generateDemoLeads = (): Lead[] => {
     dateAdded: daysAgo(90),
     lastContactDate: daysAgo(40), // > 30 days -> AT RISK
     status: 'Active',
+    onboardingStatus: 'Completed',
     touchCountWeek: 0,
     priorityScore: 65
   });
 
-  // Generate 12 more generic leads (Total ~15 for manageable routine list)
+  // STAGE 1: INITIATED (< 24h)
+  leads.push({
+    id: 'lead-stage-1',
+    name: 'David Chen',
+    role: 'Franchisee',
+    nationality: 'China',
+    email: 'd.chen@franchise.cn',
+    phone: '+971 58 123 4444',
+    minBudget: 1000000,
+    maxBudget: 3000000,
+    preferredIndustries: [Industry.FnB],
+    locationPreference: 'Mall of Emirates',
+    notes: 'Interested in bubble tea franchises.',
+    dateAdded: hoursAgo(5), // 5 hours ago
+    status: 'Active',
+    onboardingStatus: 'Pending',
+    touchCountWeek: 0,
+    priorityScore: 60
+  });
+  
+  // STAGE 2: PAUSED (24h - 70h)
+  leads.push({
+    id: 'lead-stage-2',
+    name: 'Elena Petrov',
+    role: 'Beauty Investor',
+    nationality: 'Russia',
+    email: 'elena.p@beauty.ru',
+    phone: '+971 50 999 8888',
+    minBudget: 200000,
+    maxBudget: 500000,
+    preferredIndustries: [Industry.Retail],
+    locationPreference: 'JBR',
+    notes: 'Looking for salons.',
+    dateAdded: hoursAgo(30), // 30 hours ago
+    status: 'Active',
+    onboardingStatus: 'Pending',
+    touchCountWeek: 0,
+    priorityScore: 60
+  });
+
+  // STAGE 3: INCOMPLETE (> 70h)
+  leads.push({
+    id: 'lead-stage-3',
+    name: 'Tariq Al-Fayed',
+    role: 'Family Office',
+    nationality: 'Saudi Arabia',
+    email: 'tariq@alfayed.sa',
+    phone: '+966 50 111 2222',
+    minBudget: 5000000,
+    maxBudget: 10000000,
+    preferredIndustries: [Industry.Construction],
+    locationPreference: 'Industrial Area',
+    notes: 'Stalled on document upload.',
+    dateAdded: hoursAgo(80), // 80 hours ago
+    status: 'Active',
+    onboardingStatus: 'Pending',
+    touchCountWeek: 0,
+    priorityScore: 60
+  });
+
+  // Generate 12 more generic leads
   const ROLES = ['Serial Entrepreneur', 'First-time Buyer', 'Franchise Operator', 'Family Office', 'Chef Owner', 'Silent Investor'];
   const NATIONALITIES = ['Indian', 'Russian', 'French', 'Saudi', 'Chinese', 'British', 'American', 'Lebanese', 'Egyptian'];
 
@@ -241,6 +310,11 @@ export const generateDemoLeads = (): Lead[] => {
     const fName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
     const lName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
     const contactDaysAgo = Math.floor(Math.random() * 60);
+
+    const isPending = Math.random() > 0.8;
+    // For pending leads in loop, randomize hours to show variety of stages
+    const pendingHours = isPending ? Math.floor(Math.random() * 100) : undefined;
+    const dateAdded = isPending ? hoursAgo(pendingHours!) : daysAgo(Math.floor(Math.random() * 45));
 
     leads.push({
       id: `lead-${i}`,
@@ -254,9 +328,10 @@ export const generateDemoLeads = (): Lead[] => {
       preferredIndustries: [Industry.FnB],
       locationPreference: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
       notes: 'Generated demo lead interested in high ROI assets.',
-      dateAdded: daysAgo(Math.floor(Math.random() * 45)),
+      dateAdded: dateAdded,
       lastContactDate: daysAgo(contactDaysAgo),
       status: 'Active',
+      onboardingStatus: isPending ? 'Pending' : 'Completed',
       touchCountWeek: contactDaysAgo > 7 ? 0 : Math.floor(Math.random() * 4),
       priorityScore: Math.floor(Math.random() * 100)
     });
@@ -265,64 +340,32 @@ export const generateDemoLeads = (): Lead[] => {
   return leads;
 };
 
-// Generate Massive Feedback Dataset
-// Ensures every lead has at least 4 matches
 export const generateDemoFeedback = (leads: Lead[], listings: Listing[]): MatchFeedback[] => {
   const feedbacks: MatchFeedback[] = [];
 
-  // Helper to get random subset of listings
-  const getRandomListings = (count: number) => {
-    const shuffled = [...listings].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  };
-
+  // Create random feedbacks
   leads.forEach(lead => {
-    // 1. Determine how many listings this lead was sent (4 to 8)
-    const matchCount = Math.floor(Math.random() * 5) + 4; 
-    const assignedListings = getRandomListings(matchCount);
-
-    assignedListings.forEach((listing, index) => {
-      // 2. Determine the status of this match
-      // Weighted probabilities:
-      // 15% Positive
-      // 25% Negative
-      // 20% Pending (Recent - < 24h)
-      // 40% Pending (Ignored - > 72h) -> Emphasizing the "Non-Responder" demo
-      
-      const rand = Math.random();
-      let status: FeedbackStatus;
-      let dateOffset: number; // days ago
-
-      if (rand < 0.15) {
-        status = FeedbackStatus.Positive;
-        dateOffset = Math.floor(Math.random() * 5) + 1;
-      } else if (rand < 0.40) {
-        status = FeedbackStatus.Negative;
-        dateOffset = Math.floor(Math.random() * 5) + 1;
-      } else if (rand < 0.60) {
-        status = FeedbackStatus.Pending;
-        dateOffset = 0; // Today/Yesterday (Fresh)
-      } else {
-        status = FeedbackStatus.Pending;
-        dateOffset = Math.floor(Math.random() * 4) + 3; // 3 to 7 days ago (Ignored)
-      }
-
-      // 3. Specific Overrides for Demo Narrative
-      if (lead.id === 'lead-ent-1' && index < 3) {
-         // Sarah Jenkins ignores first 3
-         status = FeedbackStatus.Pending;
-         dateOffset = 4;
-      }
-
-      feedbacks.push({
-        id: uuid(),
-        leadId: lead.id,
-        listingId: listing.id,
-        status: status,
-        timestamp: daysAgo(dateOffset)
-      });
-    });
+    // 30% chance a lead has some feedback history
+    if (Math.random() > 0.7 && listings.length > 0) {
+        // Pick random listing
+        const listing = listings[Math.floor(Math.random() * listings.length)];
+        
+        // Random Status
+        const rand = Math.random();
+        let status = FeedbackStatus.Pending;
+        if (rand > 0.6) status = FeedbackStatus.Positive;
+        else if (rand > 0.3) status = FeedbackStatus.Negative;
+        else if (rand > 0.1) status = FeedbackStatus.Ignored;
+        
+        feedbacks.push({
+            id: uuid(),
+            leadId: lead.id,
+            listingId: listing.id,
+            status: status,
+            timestamp: daysAgo(Math.floor(Math.random() * 10))
+        });
+    }
   });
-
+  
   return feedbacks;
 };

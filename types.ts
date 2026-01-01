@@ -99,6 +99,7 @@ export interface Lead {
   lastContactDate?: string;
   status: 'Active' | 'Cold' | 'Dead' | 'Paused';
   onboardingStatus?: 'Pending' | 'Completed'; // New field for form tracking
+  manualStage?: 'Initiated' | 'Paused' | 'Incomplete'; // New field for manual override
   touchCountWeek: number;
   priorityScore: number;
 }
