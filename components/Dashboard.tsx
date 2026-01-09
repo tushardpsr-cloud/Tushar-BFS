@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Lead, Listing, Industry } from '../types';
@@ -80,7 +81,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, listings }) => {
                <div key={i} className="flex items-start space-x-4">
                  <div className="w-2 h-2 rounded-full bg-[#0071e3] mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(0,113,227,0.4)]"></div>
                  <div>
-                   <p className="text-sm text-[#1d1d1f] font-medium">New match suggested via AI</p>
+                   <p className="text-sm text-[#1d1d1f] font-medium">New match suggested</p>
                    <p className="text-xs text-[#86868b] mt-0.5">System matched "Investor #{10+i}" with "Listing #{100+i}"</p>
                    <p className="text-[10px] text-[#86868b] mt-1 font-medium">{i * 2 + 1} hours ago</p>
                  </div>

@@ -1,10 +1,17 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { Lead, Listing, MatchResult, AIMatchResult, VoiceCommandResponse, Industry } from "../types";
 
+import { GoogleGenAI, Type } from "@google/genai";
+import { Lead, Listing, AIMatchResult, VoiceCommandResponse, Industry } from "../types";
+
+// Always initialize the SDK with a named parameter for apiKey
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const MODEL_NAME = "gemini-2.5-flash";
+// Select recommended models based on task complexity
+const FAST_MODEL = 'gemini-3-flash-preview';
+const REASONING_MODEL = 'gemini-3-pro-preview';
 
+/**
+ * Generates a professional business listing description using AI.
+ */
 export const generateListingDescription = async (listing: Partial<Listing>): Promise<string> => {
   try {
     const prompt = `
@@ -22,11 +29,13 @@ export const generateListingDescription = async (listing: Partial<Listing>): Pro
       Output only the description paragraph.
     `;
 
+    // Use ai.models.generateContent to fetch results directly
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: FAST_MODEL,
       contents: prompt,
     });
 
+    // Access the text property directly from the response object
     return response.text || "Could not generate description.";
   } catch (error) {
     console.error("Error generating description:", error);
@@ -34,6 +43,9 @@ export const generateListingDescription = async (listing: Partial<Listing>): Pro
   }
 };
 
+/**
+ * Analyzes the fit between a listing and leads using complex reasoning.
+ */
 export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<AIMatchResult[]> => {
   try {
     const prompt = `
@@ -62,8 +74,9 @@ export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<AIM
       - reasoning (string, concise explanation of why it fits or doesn't)
     `;
 
+    // Use gemini-3-pro-preview for complex reasoning and matching tasks
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: REASONING_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -85,10 +98,10 @@ export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<AIM
     const jsonStr = response.text;
     if (!jsonStr) return [];
     
-    // The response text is a JSON string based on the schema
+    // Parse the JSON string result from the model's text output
     const results = JSON.parse(jsonStr) as Omit<AIMatchResult, 'listingId'>[];
     
-    // Hydrate with listingId
+    // Hydrate the matching results with the listingId
     return results.map(r => ({ ...r, listingId: listing.id }));
 
   } catch (error) {
@@ -97,6 +110,9 @@ export const analyzeMatch = async (listing: Listing, leads: Lead[]): Promise<AIM
   }
 };
 
+/**
+ * Processes multimodal audio input to determine CRM intent and extract data.
+ */
 export const processVoiceCommand = async (
   audioBase64: string, 
   context: { leadNames: string[], listingTitles: string[] }
@@ -124,8 +140,9 @@ export const processVoiceCommand = async (
       Output JSON format.
     `;
 
+    // Gemini 3 Flash efficiently handles multimodal inputs including audio
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: FAST_MODEL,
       contents: {
         parts: [
           { inlineData: { mimeType: "audio/wav", data: audioBase64 } },
@@ -160,7 +177,8 @@ export const processVoiceCommand = async (
                     },
                     nullable: true
                 }
-            }
+            },
+            required: ["transcription", "intent"]
         }
       }
     });

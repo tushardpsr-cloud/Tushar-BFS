@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { Listing, Industry, DealStage } from '../types';
-import { Plus, Edit2, Sparkles, MapPin, Tag, X } from 'lucide-react';
-import { generateListingDescription } from '../services/geminiService';
+import { Plus, Edit2, MapPin, Tag, X } from 'lucide-react';
 
 interface ListingsManagerProps {
   listings: Listing[];
@@ -10,7 +10,6 @@ interface ListingsManagerProps {
 
 export const ListingsManager: React.FC<ListingsManagerProps> = ({ listings, setListings }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState<Partial<Listing>>({
     title: '',
     industry: Industry.Technology,
@@ -30,13 +29,6 @@ export const ListingsManager: React.FC<ListingsManagerProps> = ({ listings, setL
       ...prev,
       [name]: name === 'askingPrice' || name === 'revenue' || name === 'ebitda' ? Number(value) : value
     }));
-  };
-
-  const handleGenerateDescription = async () => {
-    setIsGenerating(true);
-    const desc = await generateListingDescription(formData);
-    setFormData(prev => ({ ...prev, description: desc }));
-    setIsGenerating(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -183,25 +175,14 @@ export const ListingsManager: React.FC<ListingsManagerProps> = ({ listings, setL
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide">Description / Highlights</label>
-                  <button 
-                    type="button" 
-                    onClick={handleGenerateDescription}
-                    disabled={isGenerating}
-                    className="text-xs flex items-center space-x-1 text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 transition-colors"
-                  >
-                    <Sparkles size={14} />
-                    <span>{isGenerating ? 'Drafting...' : 'AI Draft'}</span>
-                  </button>
-                </div>
+                <label className="block text-xs font-semibold text-[#86868b] uppercase tracking-wide mb-2">Description / Highlights</label>
                 <textarea 
                   name="description" 
                   value={formData.description} 
                   onChange={handleInputChange} 
                   rows={4} 
                   className="w-full px-4 py-3 bg-[#f5f5f7] border-0 rounded-xl text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] resize-none" 
-                  placeholder="Enter key details here and click AI Draft to generate a full teaser."
+                  placeholder="Enter key details here."
                 />
               </div>
 

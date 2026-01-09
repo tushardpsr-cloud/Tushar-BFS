@@ -1,7 +1,5 @@
 {
   "name": "CustomCRM",
-  "description": "A sophisticated CRM for business brokerage enabling management of leads, listings, and AI-driven matching of buyers to sellers.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "description": "A sophisticated CRM for business brokerage enabling management of leads, listings, and matching of buyers to sellers.",
+  "requestFramePermissions": []
 }

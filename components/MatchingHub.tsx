@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Lead, Listing, MatchTier, MatchFeedback, FeedbackStatus } from '../types';
 import { calculateMatchTier } from '../services/crmLogic';
@@ -21,14 +22,12 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
   const isIgnored = match.isIgnored;
   const hasFeedback = !!match.feedback;
 
-  // Visual logic for Feedback Mode (The Lead's Input)
   const isPositive = match.feedback?.status === FeedbackStatus.Positive;
   const isNegative = match.feedback?.status === FeedbackStatus.Negative;
   
   return (
     <div className={`bg-white p-4 rounded-xl border shadow-sm hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all group relative animate-in fade-in duration-300 ${isIgnored ? 'border-red-200 bg-red-50/10' : 'border-gray-200'}`}>
       
-      {/* Channel Badge (Only in Feedback Mode) */}
       {isFeedbackMode && (
           <div className="absolute -top-2 -right-2 bg-[#25D366] text-white p-1 rounded-full shadow-sm z-10" title="Source: WhatsApp API">
               <Smartphone size={10} />
@@ -47,13 +46,10 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
             )}
         </span>
         
-        {/* Interaction Area */}
         <div className="flex items-center space-x-1">
              
-             {/* MODE 1: FEEDBACK TRACKING (Simulate Lead Input) */}
              {isFeedbackMode ? (
                  <>
-                    {/* Ignored State Action */}
                     {isIgnored && (
                         <button
                             onClick={(e) => { e.stopPropagation(); onResolveIgnore && onResolveIgnore(); }}
@@ -65,12 +61,11 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                         </button>
                     )}
 
-                    {/* Lead's Thumbs Down Choice */}
                     <button 
                         onClick={(e) => { e.stopPropagation(); onFeedback && onFeedback(FeedbackStatus.Negative); }}
                         className={`p-1.5 rounded-full transition-colors ${
                             isNegative
-                            ? 'bg-red-500 text-white shadow-md' // Filled if selected
+                            ? 'bg-red-500 text-white shadow-md' 
                             : 'text-gray-300 hover:text-red-500 hover:bg-red-50'
                         }`}
                         title={isNegative ? "Lead clicked: Not Interested" : "Simulate Lead: Not Interested"}
@@ -78,12 +73,11 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                         <ThumbsDown size={14} fill={isNegative ? "currentColor" : "none"} />
                     </button>
 
-                    {/* Lead's Thumbs Up Choice */}
                     <button 
                         onClick={(e) => { e.stopPropagation(); onFeedback && onFeedback(FeedbackStatus.Positive); }}
                         className={`p-1.5 rounded-full transition-colors ${
                             isPositive
-                            ? 'bg-green-500 text-white shadow-md' // Filled if selected
+                            ? 'bg-green-500 text-white shadow-md' 
                             : 'text-gray-300 hover:text-green-500 hover:bg-green-50'
                         }`}
                         title={isPositive ? "Lead clicked: Interested" : "Simulate Lead: Interested"}
@@ -92,7 +86,6 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                     </button>
                  </>
              ) : (
-                 /* MODE 2: PLANNING (Broker Action) */
                  hasFeedback ? (
                     <button 
                         disabled
@@ -106,7 +99,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                     <button 
                         onClick={(e) => { e.stopPropagation(); onShare && onShare(); }}
                         className="flex items-center space-x-1 bg-[#25D366] hover:bg-[#128C7E] text-white px-2 py-1 rounded-full text-[10px] font-semibold transition-all shadow-sm"
-                        title="Send WhatsApp Template with Interactive Buttons"
+                        title="Send WhatsApp Template"
                     >
                         <Send size={10} />
                         <span>Send WA</span>
@@ -122,7 +115,6 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
 
       {isListing ? (
         <div className="space-y-2 mb-3">
-           {/* F&B Specific Metrics */}
           <div className="grid grid-cols-2 gap-2">
                <div className="flex flex-col bg-gray-50 p-2 rounded-lg">
                     <span className="text-[10px] text-[#86868b] uppercase">Ask / Key</span>
@@ -153,10 +145,8 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
         </div>
       )}
 
-      {/* Action / Status Footer */}
       <div className="border-t border-gray-100 pt-3 mt-1 flex justify-between items-center">
            {isFeedbackMode ? (
-               // Feedback Mode Footer
                isIgnored ? (
                    <span className="text-[10px] font-bold text-red-600 flex items-center">
                        <Clock size={10} className="mr-1" /> Ignored (72h+)
@@ -173,7 +163,6 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, viewMode, isFeedbackMode, 
                    </span>
                )
            ) : (
-               // Planning Mode Footer
                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                    match.feedback ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-500'
                }`}>
@@ -203,15 +192,12 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<string | null>(null);
 
-  // Filtering the sidebar list
   const filteredEntities = (viewMode === 'BuyerCentric' ? leads : listings).filter((item: any) => {
     const name = item.name || item.title;
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const handleFeedback = (leadId: string, listingId: string, status: FeedbackStatus) => {
-    // This function simulates receiving a webhook from WhatsApp
-    // In a real app, this would be an API call, but here we update state directly
     setFeedbacks(prev => {
         const filtered = prev.filter(f => !(f.leadId === leadId && f.listingId === listingId));
         return [...filtered, {
@@ -225,24 +211,17 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
   };
 
   const handleShare = (leadId: string, listingId: string) => {
-      // Simulate sending to WhatsApp
-      setToast(`Sent via WhatsApp API: Listing card with [👍] [👎] buttons.`);
+      setToast(`Sent via WhatsApp API: Listing card for triage.`);
       setTimeout(() => setToast(null), 3000);
-      
-      // Mark as Pending (Sent, waiting for lead response)
       handleFeedback(leadId, listingId, FeedbackStatus.Pending);
   };
 
   const handleResolveIgnore = (leadId: string, listingId: string) => {
-      // 1. Simulate sending WhatsApp
-      setToast(`Auto-Follow Up sent: "Noticed you missed this. Pausing updates for now."`);
+      setToast(`Auto-Follow Up sent: "Checking in on the latest match."`);
       setTimeout(() => setToast(null), 4000);
-
-      // 2. Mark as handled (remove from ignored view)
       handleFeedback(leadId, listingId, FeedbackStatus.Negative); 
   };
 
-  // Helper: Check if ignored (Pending + > 48h old)
   const isMatchIgnored = (feedback?: MatchFeedback) => {
       if (!feedback) return false;
       if (feedback.status !== FeedbackStatus.Pending) return false;
@@ -252,11 +231,9 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
       return hours > 48; 
   };
 
-  // Calculate matches for the selected entity
   const getMatches = () => {
     if (!selectedEntityId) return [];
     
-    // PLANNING MODE: Show algorithmic potential matches
     if (hubMode === 'Planning') {
         if (viewMode === 'BuyerCentric') {
             const lead = leads.find(l => l.id === selectedEntityId);
@@ -276,7 +253,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
             })).filter(m => m.tier !== MatchTier.None);
         }
     } 
-    // FEEDBACK MODE: Show only matches that have interaction/feedback
     else {
         if (viewMode === 'BuyerCentric') {
             return feedbacks
@@ -300,7 +276,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
 
   const matches = getMatches();
   
-  // Columns
   const planningColumns = [
     { id: MatchTier.Ideal, label: 'Tier S', sub: 'Ideal Match', color: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: Star },
     { id: MatchTier.GoodFit, label: 'Tier A', sub: 'Good Fit', color: 'bg-blue-50 text-blue-700 border-blue-100', icon: CheckCircle2 },
@@ -311,13 +286,12 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
   const feedbackColumns = [
       { id: FeedbackStatus.Positive, label: 'Lead Interested', sub: 'Clicked Thumbs Up', color: 'bg-green-50 text-green-700 border-green-100', icon: ThumbsUp },
       { id: FeedbackStatus.Pending, label: 'Awaiting Response', sub: 'Sent via WhatsApp', color: 'bg-slate-50 text-slate-600 border-slate-100', icon: AlertCircle },
-      { id: FeedbackStatus.Ignored, label: 'No Response', sub: '48h+ Silence', color: 'bg-red-50 text-red-700 border-red-100', icon: Clock }, // Virtual column for logic
+      { id: FeedbackStatus.Ignored, label: 'No Response', sub: '48h+ Silence', color: 'bg-red-50 text-red-700 border-red-100', icon: Clock }, 
       { id: FeedbackStatus.Negative, label: 'Lead Passed', sub: 'Clicked Thumbs Down', color: 'bg-gray-50 text-gray-500 border-gray-100', icon: ThumbsDown },
   ];
 
   return (
     <div className="h-full flex flex-col pb-4 relative">
-       {/* Toast Notification */}
        {toast && (
            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full text-sm font-medium shadow-xl z-50 animate-in fade-in slide-in-from-top-4">
                {toast}
@@ -331,12 +305,11 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
               Matching Hub
             </h2>
             <p className="text-xs text-[#86868b] mt-1 ml-7">
-                {hubMode === 'Planning' ? 'Drag-and-drop style triage for AI matches.' : 'Track WhatsApp responses from leads.'}
+                {hubMode === 'Planning' ? 'Triage criteria-based matches.' : 'Track WhatsApp responses from leads.'}
             </p>
           </div>
           
           <div className="flex space-x-4">
-              {/* Hub Mode Toggle */}
               <div className="flex bg-gray-200/80 p-1 rounded-lg">
                   <button 
                     onClick={() => setHubMode('Planning')}
@@ -352,7 +325,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
                   </button>
               </div>
 
-              {/* View Entity Toggle */}
               <div className="flex bg-gray-200/80 p-1 rounded-lg">
                 <button 
                     onClick={() => { setViewMode('BuyerCentric'); setSelectedEntityId(null); }}
@@ -371,7 +343,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
       </div>
 
       <div className="flex-1 min-h-0 flex gap-6">
-        {/* Left Sidebar: Entity Selector */}
         <div className="w-80 flex flex-col bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-200 overflow-hidden shrink-0 transition-colors">
            <div className="p-4 border-b border-gray-100">
              <div className="relative">
@@ -414,7 +385,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
            </div>
         </div>
 
-        {/* Right Area: Kanban Board */}
         <div className="flex-1 bg-gray-100/50 rounded-2xl border border-gray-200/60 overflow-x-auto overflow-y-hidden relative">
             {!selectedEntityId ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-[#86868b] bg-[#f5f5f7]/50 backdrop-blur-sm">
@@ -424,13 +394,11 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
             ) : (
                 <div className="h-full flex p-4 gap-4 min-w-max">
                     {(hubMode === 'Planning' ? planningColumns : feedbackColumns).map(col => {
-                        // Advanced Filtering Logic
                         let colMatches = [];
                         
                         if (hubMode === 'Planning') {
                             colMatches = matches.filter((m: any) => m.tier === col.id);
                         } else {
-                            // Feedback Mode Logic including "Ignored" virtual column
                             if (col.id === FeedbackStatus.Ignored) {
                                 colMatches = matches.filter((m: any) => m.isIgnored);
                             } else if (col.id === FeedbackStatus.Pending) {
@@ -443,7 +411,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
                         const Icon = col.icon;
                         return (
                             <div key={col.id} className="w-80 flex flex-col h-full animate-in zoom-in-95 duration-200">
-                                {/* Column Header */}
                                 <div className={`p-3 rounded-t-xl border-b-2 flex items-center justify-between bg-white/80 backdrop-blur shadow-sm ${col.color.replace('text-', 'border-').split(' ')[2]}`}>
                                     <div className="flex items-center">
                                        <Icon size={16} className={`mr-2 ${col.color.split(' ')[1]}`} />
@@ -455,7 +422,6 @@ export const MatchingHub: React.FC<MatchingHubProps> = ({ leads, listings, feedb
                                     <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs font-bold">{colMatches.length}</span>
                                 </div>
                                 
-                                {/* Column Content */}
                                 <div className="flex-1 bg-gray-50/50 rounded-b-xl border border-t-0 border-gray-200/60 p-3 overflow-y-auto space-y-3">
                                     {colMatches.map((match: any, idx) => {
                                         const leadId = viewMode === 'BuyerCentric' ? selectedEntityId : match.entity.id;

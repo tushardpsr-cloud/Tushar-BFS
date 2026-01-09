@@ -126,7 +126,6 @@ export interface Listing {
   lastContactDate?: string;
   touchCountWeek: number;
   priorityScore: number;
-  aiSummary?: string;
 }
 
 export interface MatchResult {
@@ -134,6 +133,7 @@ export interface MatchResult {
   tier: MatchTier;
 }
 
+// Added missing interface for AI matching results used by MatchingHub and GeminiService
 export interface AIMatchResult {
   leadId: string;
   listingId: string;
@@ -141,11 +141,10 @@ export interface AIMatchResult {
   reasoning: string;
 }
 
-export type VoiceIntent = 'CREATE_LEAD' | 'CREATE_LISTING' | 'LOG_INTERACTION' | 'CREATE_LOG' | 'UNKNOWN';
-
+// Added missing interface for voice command responses from GeminiService
 export interface VoiceCommandResponse {
   transcription: string;
-  intent: VoiceIntent;
+  intent: string;
+  matchedEntityName?: string | null;
   data: any;
-  matchedEntityName?: string;
 }

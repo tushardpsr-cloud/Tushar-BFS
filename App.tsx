@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Overview } from './components/Overview';
@@ -6,8 +7,7 @@ import { BuyersDashboard } from './components/BuyersDashboard';
 import { MatchingHub } from './components/MatchingHub';
 import { BrokersDashboard } from './components/BrokersDashboard';
 import { OnboardingDashboard } from './components/OnboardingDashboard';
-import { VoiceOverlay } from './components/VoiceOverlay';
-import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, LogEntry, VoiceCommandResponse, MatchFeedback, FeedbackStatus, ListingType } from './types';
+import { Lead, Listing, Industry, DealStage, Interaction, InteractionType, Broker, LogEntry, MatchFeedback, FeedbackStatus, ListingType } from './types';
 import { calculatePriorityScore } from './services/crmLogic';
 import { generateDemoLeads, generateDemoListings, generateDemoFeedback, generateDemoLogs } from './services/demoData';
 
@@ -95,7 +95,6 @@ const INITIAL_LEADS: Lead[] = [
     priorityScore: 0,
     lastContactDate: '2023-11-24'
   },
-  // New Onboarding Leads
   {
     id: '103',
     name: 'James Smith',
@@ -153,7 +152,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState('overview');
   const [isDemoMode, setIsDemoMode] = useState(false);
   
-  // State
   const [listings, setListings] = useState<Listing[]>(() => 
     INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) }))
   );
@@ -165,10 +163,8 @@ export default function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [feedbacks, setFeedbacks] = useState<MatchFeedback[]>(INITIAL_FEEDBACK);
 
-  // Toggle Demo Mode
   const toggleDemoMode = () => {
     if (!isDemoMode) {
-      // START DEMO
       const demoListings = generateDemoListings();
       const demoLeads = generateDemoLeads();
       const demoFeedback = generateDemoFeedback(demoLeads, demoListings);
@@ -180,7 +176,6 @@ export default function App() {
       setLogs(demoLogs);
       setIsDemoMode(true);
     } else {
-      // STOP DEMO (Reset to initial)
       setListings(INITIAL_LISTINGS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setLeads(INITIAL_LEADS.map(l => ({ ...l, priorityScore: calculatePriorityScore(l) })));
       setFeedbacks(INITIAL_FEEDBACK);
@@ -189,7 +184,6 @@ export default function App() {
     }
   };
 
-  // Interaction Logger
   const handleLogInteraction = (entityId: string, type: 'Call' | 'Email' | 'Note', notes?: string) => {
       const newInteraction: Interaction = {
           id: Math.random().toString(36).substr(2, 9),
@@ -201,7 +195,6 @@ export default function App() {
 
       setInteractions(prev => [newInteraction, ...prev]);
 
-      // Update entity metrics
       const updateEntity = (items: any[]) => {
           return items.map(item => {
               if (item.id === entityId) {
@@ -218,75 +211,6 @@ export default function App() {
 
       setLeads(prev => updateEntity(prev) as Lead[]);
       setListings(prev => updateEntity(prev) as Listing[]);
-  };
-
-  const handleVoiceAction = (res: VoiceCommandResponse) => {
-    switch (res.intent) {
-        case 'CREATE_LEAD':
-            const newLead: Lead = {
-                id: Math.random().toString(36).substr(2, 9),
-                name: res.data.name || 'New Lead',
-                email: 'pending@entry.com',
-                phone: '',
-                minBudget: 0,
-                maxBudget: res.data.maxBudget || 0,
-                preferredIndustries: res.data.preferredIndustries || [],
-                locationPreference: 'Dubai',
-                notes: res.data.notes || res.transcription,
-                dateAdded: new Date().toISOString(),
-                status: 'Active',
-                onboardingStatus: 'Completed',
-                touchCountWeek: 0,
-                priorityScore: 50
-            };
-            setLeads(prev => [newLead, ...prev]);
-            break;
-
-        case 'CREATE_LISTING':
-             const newListing: Listing = {
-                id: Math.random().toString(36).substr(2, 9),
-                title: res.data.title || 'New Listing',
-                description: 'Added via Voice',
-                askingPrice: res.data.askingPrice || 0,
-                revenue: res.data.revenue || 0,
-                ebitda: res.data.ebitda || 0,
-                cashflow: 0,
-                industry: res.data.industry || Industry.Technology,
-                location: res.data.location || 'Dubai',
-                stage: DealStage.New,
-                sellerName: 'Pending',
-                sellerContact: '',
-                dateAdded: new Date().toISOString(),
-                touchCountWeek: 0,
-                priorityScore: 50
-            };
-            setListings(prev => [newListing, ...prev]);
-            break;
-
-        case 'LOG_INTERACTION':
-            const targetName = res.matchedEntityName;
-            if (targetName) {
-                const lead = leads.find(l => l.name.toLowerCase() === targetName.toLowerCase());
-                const listing = listings.find(l => l.title.toLowerCase() === targetName.toLowerCase());
-                const entityId = lead?.id || listing?.id;
-                
-                if (entityId) {
-                    handleLogInteraction(entityId, 'Call', res.data.notes || res.transcription);
-                }
-            }
-            break;
-
-        case 'CREATE_LOG':
-            const newLog: LogEntry = {
-                id: Math.random().toString(36).substr(2, 9),
-                title: res.data.title || res.transcription,
-                dueDate: res.data.dueDate || 'Today',
-                completed: false,
-                priority: 'Normal'
-            };
-            setLogs(prev => [newLog, ...prev]);
-            break;
-    }
   };
 
   const handleAddLog = (logData: { title: string; dueDate: string; priority: 'High' | 'Normal' }) => {
@@ -351,14 +275,6 @@ export default function App() {
            {renderContent()}
         </div>
       </main>
-
-      <VoiceOverlay 
-        context={{ 
-            leadNames: leads.map(l => l.name), 
-            listingTitles: listings.map(l => l.title) 
-        }} 
-        onAction={handleVoiceAction} 
-      />
     </div>
   );
 }
